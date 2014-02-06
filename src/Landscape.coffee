@@ -23,9 +23,10 @@ class Landscape extends Phaser.State
     set.to({ y: 450 }, 300000, Phaser.Easing.Quintic.None, true)
     set.start
 
-    @cloud = @game.add.sprite(1000, 100, 'cloud')
+    @cloud = @game.add.sprite(1000, 10, 'cloud')
+    @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
-    move.to({x: -200}, 100000, Phaser.Easing.Linear.None, true, 0, 1000)
+    move.to({x: -200}, 300000, Phaser.Easing.Linear.None, true, 0, 999)
     move.start
 
     @mountain1 = @game.add.sprite(0, 240, 'mountain')
@@ -35,14 +36,14 @@ class Landscape extends Phaser.State
     @tree1.anchor.setTo(0.5, 1)
     @tree1.scale.setTo(4, 4)
     move = @game.add.tween(@tree1)
-    move.to({x: -2000}, 1900, Phaser.Easing.Linear.None, true, 7000, 1000)
+    move.to({x: -2000}, 1900, Phaser.Easing.Linear.None, true, 7000, 999)
     move.start
 
     @tree2 = @game.add.sprite(2000, 520, 'tree2')
     @tree2.anchor.setTo(0.5, 1)
     @tree2.scale.setTo(4, 4)
     move = @game.add.tween(@tree2)
-    move.to({x: -2000}, 1700, Phaser.Easing.Linear.None, true, 13000, 1000)
+    move.to({x: -2000}, 1700, Phaser.Easing.Linear.None, true, 13000, 999)
     move.start
 
     @grass1 = @game.add.sprite(0, 320, 'grass')
