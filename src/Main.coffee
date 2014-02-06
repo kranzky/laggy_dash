@@ -14,9 +14,10 @@ class Main extends Phaser.State
     new Phaser.Game(896, 504, mode, @parent, this)
 
   preload:->  
-    @game.stage.fullScreenScaleMode = Phaser.StageScaleMode.SHOW_ALL
-    @game.input.onDown.add(@goFull)
-#   @game.load.onLoadComplete.addOnce(@ready)
+    @game.stage.scaleMode = Phaser.StageScaleMode.EXACT_FIT
+    @game.stage.scale.setShowAll()
+    @game.stage.scale.refresh()
+    @game.load.onLoadComplete.addOnce(@ready)
     @game.state.add('splash', new Splash(), false)
     @game.state.add('landscape', new Landscape(), false)
     @game.load.image('labs', 'assets/labs.png')
@@ -36,10 +37,6 @@ class Main extends Phaser.State
 
   render:->
     @game.debug.renderText('CLICK!', 20, 20, "#FFFFFF")
-
-  goFull:=>
-    @game.stage.scale.startFullScreen()
-    @ready()
 
   ready:=>
     @game.state.start('splash')
