@@ -45,6 +45,7 @@ class Main extends Phaser.State
     @game.load.image('grass', 'assets/grass.png')
     @game.load.image('tree1', 'assets/tree1.png')
     @game.load.image('tree2', 'assets/tree2.png')
+    @game.load.spritesheet('guy', 'assets/running.png', 59, 89, 6, 0, 6)
 
   loadRender:->
     @graphics.beginFill(0x00ff44)

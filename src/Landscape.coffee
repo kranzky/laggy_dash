@@ -4,10 +4,14 @@ class Landscape extends Phaser.State
   constructor:->
 
   create:->
-    @game.stage.backgroundColor = '#000000'
+    @game.stage.backgroundColor = '#000055'
 
     @sky = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'sky')
     @sky.anchor.setTo(0.5, 0.5)
+
+    fade = @game.add.tween(@sky)
+    fade.to({ alpha: 0 }, 800000, Phaser.Easing.Linear.None, true)
+    fade.start
 
     @sun = @game.add.sprite(0, 0, 'sun')
     @sun.anchor.setTo(0.5, 0.5)
@@ -22,6 +26,10 @@ class Landscape extends Phaser.State
     set = @game.add.tween(@sun)
     set.to({ y: 450 }, 300000, Phaser.Easing.Quintic.None, true)
     set.start
+
+    fade = @game.add.tween(@sun)
+    fade.to({ alpha: 0 }, 900000, Phaser.Easing.Linear.None, true)
+    fade.start
 
     @cloud = @game.add.sprite(1000, 10, 'cloud')
     @cloud.alpha = 0.4
