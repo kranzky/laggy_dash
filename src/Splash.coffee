@@ -26,6 +26,6 @@ class Splash extends Phaser.State
     destroy(@labs)
 
   done:=>
-    @game.state.start('splash')
+    @game.state.start('landscape')
 
 LaggyDash.Splash = Splash

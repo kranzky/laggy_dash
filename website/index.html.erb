@@ -1,23 +1,9 @@
 ;;;
 "title": "Laggy Dash"
 ;;;
-<div id="wrap">
-  <div class="page-header">
-    <h1>Laggy Dash <small>A Massively Single Player Infinite Runner</small></h1>
-  </div>
-  <div class="well" id="viewport">
-  </div>
-</div>
-<div id="footer">
-  <div class="container center-block">
-    <p class="text-muted" style="text-align:center;">
-    -=- made for <a href="http://www.onegameamonth.com/">#1GAM</a> by <a href="https://twitter.com/jason_hutchens">@jason_hutchens</a> | source is <a href="http://unlicense.org/">free and unencumbered</a> at <a href="https://github.com/jasonhutchens/laggy-dash">GitHub</a> -=-
-    </p>
-  </div>
-</div>
 <script type="text/javascript">
   (function () {
-    window.laggydash = new LaggyDash.Main('viewport')
-    laggydash.boot(true)
+    window.laggydash = new LaggyDash.Main()
+    laggydash.run()
   })();
 </script>

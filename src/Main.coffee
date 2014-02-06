@@ -1,31 +1,45 @@
 #= require Splash
+#= require Landscape
 
 LaggyDash = window.LaggyDash
 
 Splash = LaggyDash.Splash
+Landscape = LaggyDash.Landscape
 
 class Main extends Phaser.State
   constructor:(@parent='')->
 
-  boot:(debug = false)->
+  run:(debug = false)->
     mode = if debug then Phaser.CANVAS else Phaser.AUTO
-    new Phaser.Game(896, 504, mode, @parent, this, false, false)
-
-  create:->
-    @game.stage.backgroundColor = '#000000'
-
-  destroy:->
+    new Phaser.Game(896, 504, mode, @parent, this)
 
   preload:->  
-    @game.load.onLoadComplete.addOnce(@ready)
+    @game.stage.fullScreenScaleMode = Phaser.StageScaleMode.SHOW_ALL
+    @game.input.onDown.add(@goFull)
+#   @game.load.onLoadComplete.addOnce(@ready)
     @game.state.add('splash', new Splash(), false)
+    @game.state.add('landscape', new Landscape(), false)
     @game.load.image('labs', 'assets/labs.png')
+    @game.load.image('sky', 'assets/sky.jpg')
+    @game.load.image('sun', 'assets/sun.png')
+    @game.load.image('cloud', 'assets/cloud.png')
+    @game.load.image('mountain', 'assets/mountain.png')
+    @game.load.image('grass', 'assets/grass.png')
+    @game.load.image('tree1', 'assets/tree1.png')
+    @game.load.image('tree2', 'assets/tree2.png')
 
   loadUpdate:->
     console.debug(@game.load.progress)
 
   loadRender:->
     @game.debug.renderText('LOADING...', 20, 20, "#FFFFFF")
+
+  render:->
+    @game.debug.renderText('CLICK!', 20, 20, "#FFFFFF")
+
+  goFull:=>
+    @game.stage.scale.startFullScreen()
+    @ready()
 
   ready:=>
     @game.state.start('splash')
