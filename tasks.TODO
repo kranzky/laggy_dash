@@ -1,11 +1,14 @@
 Landscape:
- ☐ render multiple parallax layers of undulating alien landscape
+ ✔ render multiple parallax layers of undulating alien landscape @done (14-02-07 09:22)
 
 Runner:
  ☐ render a running guy that tracks the landscape
 
 Gameplay:
+  ☐ full screen on mobile
+  ☐ pause overlay
   ☐ repeatable random landscape
+  ☐ runny guy
   ☐ death
-  ☐ pub nub
   ☐ twitter
+  ☐ pub nub

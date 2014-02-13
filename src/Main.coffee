@@ -38,6 +38,7 @@ class Main extends Phaser.State
     @game.state.add('splash', new Splash(), false)
     @game.state.add('landscape', new Landscape(), false)
     @game.load.image('labs', 'assets/labs.png')
+    @game.load.image('night', 'assets/night.jpg')
     @game.load.image('sky', 'assets/sky.jpg')
     @game.load.image('sun', 'assets/sun.png')
     @game.load.image('cloud', 'assets/cloud.png')
