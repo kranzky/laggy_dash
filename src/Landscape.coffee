@@ -64,10 +64,16 @@ class Landscape extends Phaser.State
     move.to({x: -2000}, 1700 / SPEED, Phaser.Easing.Linear.None, true, 13000 / SPEED, 999)
     move.start
 
+    @guy = @game.add.sprite(500, 395, 'guy')
+
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
 
+    @position = 0
+
   update:->
+    @position += 1
+
     @grass1.x -= 20 * SPEED
     @grass2.x -= 20 * SPEED
     @grass1.x += 896 * 2 if @grass1.x <= -896
@@ -77,6 +83,10 @@ class Landscape extends Phaser.State
     @mountain2.x -= 0.5 * SPEED
     @mountain1.x += 2000 * 2 if @mountain1.x <= -2000
     @mountain2.x += 2000 * 2 if @mountain2.x <= -2000
+
+    if @position % 3 == 0
+      @guy.frame += 1
+      @guy.frame = 0 if @guy.frame == 5
 
   destroy:->
     destroy(@night)
