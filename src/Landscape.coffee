@@ -25,7 +25,7 @@ class Landscape extends Phaser.State
 
     @sun = @game.add.sprite(0, 0, 'sun')
     @sun.anchor.setTo(0.5, 0.5)
-    @sun.scale.setTo(0.4, 0.4)
+    @sun.scale.setTo(0.3, 0.4)
     @sun.x = @game.world.centerX
     @sun.y = @game.world.centerY * 0.5 - 100
 
