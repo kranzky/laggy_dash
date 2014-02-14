@@ -18,11 +18,18 @@ class Main extends Phaser.State
     destroy(@graphics)
 
   preload:->  
-    @game.stage.scale.forceLandscape = true
     @game.stage.scale.pageAlignHorizontally = true
     @game.stage.scale.pageAlignVertically = true
     @game.stage.scale.setShowAll()
     @game.stage.scale.refresh()
+
+    @game.stage.scale.enterLandscape.add =>
+      @game.stage.scale.setShowAll()
+      @game.stage.scale.refresh()
+
+    @game.stage.scale.enterPortrait.add =>
+      @game.stage.scale.setShowAll()
+      @game.stage.scale.refresh()
 
     message = "=== L A G G Y D A S H ===\nis\nLOADING"
     style =
