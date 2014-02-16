@@ -75,16 +75,14 @@ class Main extends Phaser.State
     @pubnub = PUBNUB.init
       publish_key: "pub-c-e5d7da60-f65b-4173-b353-2b06890cfe5b"
       subscribe_key: "sub-c-4cf670be-96d5-11e3-b9e1-02ee2ddab7fe"
-      uuid: user
+      uuid: @user
 
     @pubnub.subscribe
       channel: channel,
-      presence: @_presence,
       message: @_message
+      presence: @_presence
 
     @sync()
-
-    console.log("You: " + user)
 
   send:(message)->
     @pubnub.publish
@@ -97,15 +95,23 @@ class Main extends Phaser.State
   sync:->
     @pubnub.time(@_time)
 
+  here:->
+    @pubnub.here_now
+      channel: @channel
+      callback: @_here
+
   _presence:(event)=>
-    console.log(event.action + ": " + event.uuid)
+    console.log(event)
 
   _message:(event)=>
-    console.log("MESSAGE")
-    console.log(event)
+    return if event.uuid == @user
+    return unless laggydash.game.state.current == 'landscape'
+    @game.state.getCurrentState().movChaser(event.uuid, event.time, event.data)
 
   _time:(event)=>
     @latency = Date.now() - event / 10000
-    console.log("World Time: " + @worldTime())
+
+  _here:(event)=>
+    console.log(event)
 
 LaggyDash.Main = Main

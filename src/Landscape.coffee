@@ -71,6 +71,8 @@ class Landscape extends Phaser.State
 
     @position = 0
 
+    window.laggydash.send("join")
+
   update:->
     @position += 1
 
