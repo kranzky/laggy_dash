@@ -71,6 +71,8 @@ class Landscape extends Phaser.State
 
     @position = 0
 
+    @game.add.sprite(100, 100, 'foo')
+
     window.laggydash.send("join")
 
   update:->
