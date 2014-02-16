@@ -18,6 +18,8 @@ class Main extends Phaser.State
     destroy(@graphics)
 
   preload:->  
+    @game.stage.disableVisibilityChange=true
+
     @game.stage.scale.pageAlignHorizontally = true
     @game.stage.scale.pageAlignVertically = false
     @game.stage.scale.setShowAll()
@@ -67,5 +69,40 @@ class Main extends Phaser.State
 
   ready:=>
     @game.state.start('splash')
+
+  connect:(channel, user)->
+    @pubnub = PUBNUB.init
+      publish_key: "pub-c-e5d7da60-f65b-4173-b353-2b06890cfe5b"
+      subscribe_key: "sub-c-4cf670be-96d5-11e3-b9e1-02ee2ddab7fe"
+      uuid: user
+
+    @pubnub.subscribe
+      channel: channel,
+      presence: @_presence,
+      message: @_message
+
+    @sync()
+
+  send:(channel, message)->
+    @pubnub.publish
+      channel: channel
+      message: message
+
+  worldTime:->
+    Date.now() - @latency
+
+  sync:->
+    @pubnub.time(@_time)
+
+  _presence:(event)=>
+    console.log("PRESENCE")
+    console.log(event)
+
+  _message:(event)=>
+    console.log("MESSAGE")
+    console.log(event)
+
+  _time:(event)=>
+    @latency = Date.now() - event / 10000
 
 LaggyDash.Main = Main

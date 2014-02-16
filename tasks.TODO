@@ -6,9 +6,9 @@ Runner:
 
 Gameplay:
   ☐ full screen on mobile
-  ☐ pause overlay
+  ☐ never pause
   ☐ repeatable random landscape
   ☐ runny guy
   ☐ death
   ☐ twitter
-  ☐ pub nub
+  ☐ pub nub w/ timestamps
