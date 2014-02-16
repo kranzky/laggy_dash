@@ -69,8 +69,9 @@ class Main extends Phaser.State
 
   ready:=>
     @game.state.start('splash')
+    @connect('laggydash', laggydash.game.rnd.uuid())
 
-  connect:(channel, user)->
+  connect:(@channel, @user)->
     @pubnub = PUBNUB.init
       publish_key: "pub-c-e5d7da60-f65b-4173-b353-2b06890cfe5b"
       subscribe_key: "sub-c-4cf670be-96d5-11e3-b9e1-02ee2ddab7fe"
@@ -83,10 +84,12 @@ class Main extends Phaser.State
 
     @sync()
 
-  send:(channel, message)->
+    console.log("You: " + user)
+
+  send:(message)->
     @pubnub.publish
-      channel: channel
-      message: message
+      channel: @channel
+      message: { uuid: @user, time: @worldTime(), data: message }
 
   worldTime:->
     Date.now() - @latency
@@ -95,8 +98,7 @@ class Main extends Phaser.State
     @pubnub.time(@_time)
 
   _presence:(event)=>
-    console.log("PRESENCE")
-    console.log(event)
+    console.log(event.action + ": " + event.uuid)
 
   _message:(event)=>
     console.log("MESSAGE")
@@ -104,5 +106,6 @@ class Main extends Phaser.State
 
   _time:(event)=>
     @latency = Date.now() - event / 10000
+    console.log("World Time: " + @worldTime())
 
 LaggyDash.Main = Main
