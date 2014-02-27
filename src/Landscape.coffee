@@ -8,6 +8,9 @@ class Landscape extends Phaser.State
   create:->
     @game.stage.backgroundColor = '#000055'
 
+    @player_name = location.search.replace(/[^a-z0-9_]/i, '')
+    console.log(@player_name)
+
     @night = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'night')
     @night.alpha = 0
     @night.anchor.setTo(0.5, 0.5)
@@ -95,23 +98,24 @@ class Landscape extends Phaser.State
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
 
-    foo = @game.add.sprite(600, 467, 'foo')
-    foo.scale.setTo(0.5, 0.5)
-    foo.anchor.setTo(0.5, 0.5)
-    foo.alpha = 0.7
+    player = @game.add.sprite(600, 475, 'player')
+    player.scale.setTo(0.8, 0.8)
+    player.anchor.setTo(0.5, 1.0)
+    player.alpha = 0.7
 
     @position = 0
 
     @pen = @game.add.graphics(0, 0)
     @pen.lineStyle(3, 0xffd900, 0.5)
-    @pen.moveTo(600, 440)
+    @pen.moveTo(600, 410)
     @pen.lineTo(600, 355)
 
     style =
       font: "10pt Courier"
       fill: "#ffffff"
 
-    @label = @game.add.text(567, 490, "@barnaby", style)
+    @label = @game.add.text(600, 480, "@#{@game.player_name}", style)
+    @label.x -= @label.width / 2
 
     window.laggydash.send("join")
 

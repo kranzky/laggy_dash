@@ -33,6 +33,9 @@ class Main extends Phaser.State
       @game.stage.scale.setShowAll()
       @game.stage.scale.refresh()
 
+    @game.player_name = location.search.replace(/[^a-z0-9_]/i, '')
+    @game.player_name = "barnaby_joyce" if @game.player_name.length < 1 || @game.player_name.length > 15
+
     message = "=== L A G G Y D A S H ===\nis\nLOADING"
     style =
       font: "30px Courier"
@@ -63,7 +66,7 @@ class Main extends Phaser.State
     @game.load.image('tree1', '<%= asset('tree1.png') %>')
     @game.load.image('tree2', '<%= asset('tree2.png') %>')
     @game.load.image('tree3', '<%= asset('tree3.png') %>')
-    @game.load.image('foo', 'http://res.cloudinary.com/kranzky/image/twitter_name/barnaby_joyce.jpg')
+    @game.load.image('player', 'http://res.cloudinary.com/kranzky/image/twitter_name/' + @game.player_name + '.jpg')
     @game.load.spritesheet('guy', '<%= asset('running.png') %>', 90, 128, 6)
 
   loadRender:->
