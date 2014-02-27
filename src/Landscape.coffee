@@ -42,7 +42,7 @@ class Landscape extends Phaser.State
     fade.to({ alpha: 0 }, 400000 / SPEED, Phaser.Easing.Linear.None, true)
     fade.start
 
-    @cloud = @game.add.sprite(1000, 10, 'cloud')
+    @cloud = @game.add.sprite(1000, 40, 'cloud')
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
     move.to({x: -800}, 300000 / SPEED, Phaser.Easing.Linear.None, true, 0, 1)
@@ -53,6 +53,9 @@ class Landscape extends Phaser.State
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
+
+    @guy = @game.add.sprite(600, 330, 'guy')
+    @guy.scale.setTo(0.25, 0.25)
 
     @mountain2a = @game.add.sprite(0, 180, 'mountain2')
     @mountain2b = @game.add.sprite(2000, 180, 'mountain2')
@@ -80,9 +83,6 @@ class Landscape extends Phaser.State
     move = @game.add.tween(@tree3)
     move.to({x: -2000}, 3400 / SPEED, Phaser.Easing.Linear.None, true, 17000 / SPEED, 999)
     move.start
-
-    @guy = @game.add.sprite(600, 330, 'guy')
-    @guy.scale.setTo(0.25, 0.25)
 
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
