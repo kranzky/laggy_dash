@@ -4,9 +4,6 @@ set :js_dir, 'javascripts'
 set :images_dir, 'images'
 set :build_dir, 'build'
 
-activate :relative_assets
-set :relative_links, true
-
 configure :development do
   activate :livereload
 end
