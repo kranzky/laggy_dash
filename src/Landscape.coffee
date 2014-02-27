@@ -16,7 +16,7 @@ class Landscape extends Phaser.State
     @night.anchor.setTo(0.5, 0.5)
 
     fade = @game.add.tween(@night)
-    fade.to({ alpha: 1 }, 300000 / SPEED, Phaser.Easing.Linear.None, true, 200000 / SPEED)
+    fade.to({ alpha: 1 }, 300000 / SPEED, Phaser.Easing.Linear.None, true, 150000 / SPEED, 999, true)
     fade.start
 
     @sky = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'sky')
@@ -24,7 +24,7 @@ class Landscape extends Phaser.State
     @sky.anchor.setTo(0.5, 0.5)
 
     fade = @game.add.tween(@sky)
-    fade.to({ alpha: 0 }, 500000 / SPEED, Phaser.Easing.Linear.None, true)
+    fade.to({ alpha: 0 }, 450000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999, true)
     fade.start
 
     @sun = @game.add.sprite(0, 0, 'sun')
@@ -34,21 +34,21 @@ class Landscape extends Phaser.State
     @sun.y = @game.world.centerY * 0.5 - 100
 
     grow = @game.add.tween(@sun.scale)
-    grow.to({ x: 5, y: 3 }, 1200000 / SPEED, Phaser.Easing.Linear.None, true)
+    grow.to({ x: 1.5, y: 1.5 }, 450000 / SPEED, Phaser.Easing.Cubic.InOut, true, 0, 999, true)
     grow.start
 
     set = @game.add.tween(@sun)
-    set.to({ y: 450 }, 300000 / SPEED, Phaser.Easing.Quintic.None, true)
+    set.to({ y: 675 }, 450000 / SPEED, Phaser.Easing.Sinusoidal.InOut, true, 0, 999, true)
     set.start
 
     fade = @game.add.tween(@sun)
-    fade.to({ alpha: 0 }, 400000 / SPEED, Phaser.Easing.Linear.None, true)
+    fade.to({ alpha: 0 }, 450000 / SPEED, Phaser.Easing.Linear.None, true, 0, true, true)
     fade.start
 
     @cloud = @game.add.sprite(1000, 70, 'cloud')
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
-    move.to({x: -800}, 300000 / SPEED, Phaser.Easing.Linear.None, true, 0, 1)
+    move.to({x: -800}, 300000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999)
     move.start
 
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
