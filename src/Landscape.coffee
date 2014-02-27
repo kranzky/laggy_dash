@@ -42,7 +42,7 @@ class Landscape extends Phaser.State
     fade.to({ alpha: 0 }, 400000 / SPEED, Phaser.Easing.Linear.None, true)
     fade.start
 
-    @cloud = @game.add.sprite(1000, 40, 'cloud')
+    @cloud = @game.add.sprite(1000, 70, 'cloud')
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
     move.to({x: -800}, 300000 / SPEED, Phaser.Easing.Linear.None, true, 0, 1)
@@ -54,11 +54,19 @@ class Landscape extends Phaser.State
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
 
-    @guy = @game.add.sprite(600, 330, 'guy')
+    @guy = @game.add.sprite(600, 350, 'guy')
     @guy.scale.setTo(0.25, 0.25)
+    @guy.anchor.setTo(0.5, 1.0)
 
     @mountain2a = @game.add.sprite(0, 180, 'mountain2')
     @mountain2b = @game.add.sprite(2000, 180, 'mountain2')
+    @mountain2a.alpha = 0.9
+    @mountain2b.alpha = 0.9
+
+    @mountain3a = @game.add.sprite(0, 180, 'mountain3')
+    @mountain3b = @game.add.sprite(2000, 180, 'mountain3')
+    @mountain3a.alpha = 0.4
+    @mountain3b.alpha = 0.4
 
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
     @tree0.anchor.setTo(0.5, 1)
@@ -87,9 +95,23 @@ class Landscape extends Phaser.State
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
 
+    foo = @game.add.sprite(600, 467, 'foo')
+    foo.scale.setTo(0.5, 0.5)
+    foo.anchor.setTo(0.5, 0.5)
+    foo.alpha = 0.7
+
     @position = 0
 
-    @game.add.sprite(100, 100, 'foo')
+    @pen = @game.add.graphics(0, 0)
+    @pen.lineStyle(3, 0xffd900, 0.5)
+    @pen.moveTo(600, 440)
+    @pen.lineTo(600, 355)
+
+    style =
+      font: "10pt Courier"
+      fill: "#ffffff"
+
+    @label = @game.add.text(567, 490, "@barnaby", style)
 
     window.laggydash.send("join")
 
@@ -115,6 +137,11 @@ class Landscape extends Phaser.State
     @mountain2b.x -= 0.9 * SPEED
     @mountain2a.x += 2000 * 2 if @mountain2a.x <= -2000
     @mountain2b.x += 2000 * 2 if @mountain2b.x <= -2000
+
+    @mountain3a.x -= 1.2 * SPEED
+    @mountain3b.x -= 1.2 * SPEED
+    @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
+    @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
     if @position % 9 == 0
       @guy.frame = (@guy.frame + 1) % 6
