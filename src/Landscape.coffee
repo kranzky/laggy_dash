@@ -6,6 +6,7 @@ class Landscape extends Phaser.State
   constructor:->
 
   preload:->
+    window.laggydash.connect('laggydash', laggydash.game.rnd.uuid() + ":#{@game.player_name}")
     window.laggydash.send({ type: 'spawn', player: @game.player_name })
 
   create:->
@@ -81,7 +82,7 @@ class Landscape extends Phaser.State
     @avatar.inputEnabled = true
     @avatar.useHandCursor = true
     @avatar.events.onInputDown.add =>
-      console.log(@avatar.name)
+      window.laggydash.showUser(@avatar.name)
 
     @pen = @game.add.graphics(0, 0)
     @pen.lineStyle(2, 0xffd900, 0.5)
@@ -155,8 +156,11 @@ class Landscape extends Phaser.State
     if @position % 9 == 0
       @runner.frame = (@runner.frame + 1) % 6
 
-  newAvatar:->
-    console.log("LOADED")
+  avatarLoaded:(key)->
+    if @avatar.key == "__missing" && key == "@#{@avatar.name}"
+      @avatar.loadTexture(key)
+      @avatar.width = 60
+      @avatar.height = 60
 
   handle:(event)->
     console.log(event)
