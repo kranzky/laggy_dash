@@ -160,19 +160,25 @@ class Main extends Phaser.State
     window.open(url, 'intent', "#{windowOptions},width=#{width},height=#{height},left=#{left},top=#{top}")
 
   _presence:(event)=>
+    uuid = event.uuid.replace(/:.*$/i, '')
     name = event.uuid.replace(/^.*:/i, '')
     unless event.uuid == @user
       switch event.action
         when "join"
+          @_handle({ id: uuid, action: 'join', name: name })
           alertify.success "@#{name} has joined"
         when "leave"
+          @_handle({ id: uuid, action: 'bail', name: name })
           alertify.error "@#{name} has bailed"
     return unless event.action = "join"
     @loadAvatar(name)
 
   _message:(event)=>
     return if event.uuid == @user
+    @_handle(event.data)
+
+  _handle:(data)->
     return unless laggydash.game.state.current == 'landscape'
-    @game.state.getCurrentState().handle(event.data)
+    @game.state.getCurrentState().handle(data)
 
 LaggyDash.Main = Main

@@ -7,7 +7,6 @@ class Landscape extends Phaser.State
 
   preload:->
     window.laggydash.connect('laggydash', laggydash.game.rnd.uuid() + ":#{@game.player_name}")
-    window.laggydash.send({ type: 'spawn', player: @game.player_name })
 
   create:->
     @game.stage.backgroundColor = '#000055'
@@ -55,9 +54,7 @@ class Landscape extends Phaser.State
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
     @mountain0b = @game.add.sprite(2000, 180, 'mountain0')
 
-    @runner = @game.add.sprite(600, 300, 'runner')
-    @runner.scale.setTo(0.25, 0.25)
-    @runner.anchor.setTo(0.5, 1.0)
+    @player_group = @game.add.group()
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
@@ -73,21 +70,7 @@ class Landscape extends Phaser.State
     @mountain3a.alpha = 0.4
     @mountain3b.alpha = 0.4
 
-    @avatar = @game.add.sprite(600, 475, "@#{@game.player_name}")
-    @avatar.name = @game.player_name
-    @avatar.width = 60
-    @avatar.height = 60
-    @avatar.anchor.setTo(0.5, 1.0)
-    @avatar.alpha = 0.8
-    @avatar.inputEnabled = true
-    @avatar.useHandCursor = true
-    @avatar.events.onInputDown.add =>
-      window.laggydash.showUser(@avatar.name)
-
-    @pen = @game.add.graphics(0, 0)
-    @pen.lineStyle(2, 0xffd900, 0.5)
-    @pen.moveTo(@runner.x, @runner.y)
-    @pen.lineTo(@avatar.x, @avatar.y - 65)
+    @avatar_group = @game.add.group()
 
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
     @tree0.anchor.setTo(0.5, 1)
@@ -116,14 +99,11 @@ class Landscape extends Phaser.State
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
 
-    style =
-      font: "10pt Courier"
-      fill: "#ffffff"
-
-    @label = @game.add.text(600, 480, "@#{@game.player_name}", style)
-    @label.x -= @label.width / 2
+    @label_group = @game.add.group()
 
     @position = 0
+    @players = {}
+    @addPlayer(laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
 
   update:->
     @position += 1
@@ -153,17 +133,75 @@ class Landscape extends Phaser.State
     @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
-    if @position % 9 == 0
-      @runner.frame = (@runner.frame + 1) % 6
+    @player_group.forEach (player)=>
+      if @position % 7 == 0
+        player.frame = (player.frame + 1) % 6
+
+  addPlayer:(id, name, isPlayer=false)->
+    x = if isPlayer then 600 else 300
+
+    runner = @game.add.sprite(x, 300, 'runner')
+    runner.scale.setTo(0.25, 0.25)
+    runner.anchor.setTo(0.5, 1.0)
+
+    @player_group.add(runner)
+
+    avatar = @game.add.sprite(x, 475, "@#{name}")
+    avatar.id = id
+    avatar.name = name
+    avatar.width = 60
+    avatar.height = 60
+    avatar.anchor.setTo(0.5, 1.0)
+    avatar.alpha = 0.8
+    avatar.inputEnabled = true
+    avatar.useHandCursor = true
+    avatar.events.onInputDown.add =>
+      window.laggydash.showUser(name)
+
+#   pen = @game.add.graphics(0, 0)
+#   pen.lineStyle(2, 0xffd900, 0.5)
+#   pen.moveTo(runner.x, runner.y)
+#   pen.lineTo(avatar.x, avatar.y - 65)
+
+    @avatar_group.add(avatar)
+
+    style =
+      font: "10pt Courier"
+      fill: "#ffffff"
+
+    label = @game.add.text(x, 480, "@#{name}", style)
+    label.x -= label.width / 2
+
+    @label_group.add(label)
+
+    @players[id] =
+      runner: runner
+      avatar: avatar
+      label: label
+
+  delPlayer:(id)->
+    return unless @players[id]?
+    @players[id].runner.destroy()
+    @players[id].avatar.destroy()
+    @players[id].label.destroy()
+    delete(@players[id])
 
   avatarLoaded:(key)->
-    if @avatar.key == "__missing" && key == "@#{@avatar.name}"
-      @avatar.loadTexture(key)
-      @avatar.width = 60
-      @avatar.height = 60
+    @avatar_group.forEach (avatar)=>
+      if avatar.key == "__missing" && key == "@#{avatar.name}"
+        avatar.loadTexture(key)
+        avatar.width = 60
+        avatar.height = 60
 
-  handle:(event)->
-    console.log(event)
+  handle:(remote)->
+    switch remote.action
+      when 'join'
+        @addPlayer(remote.id, remote.name)
+      when 'bail'
+        @delPlayer(remote.id)
+
+  delMob:(id, name)->
+    console.log("ADD #{name}")
 
   destroy:->
     destroy(@tree0)
