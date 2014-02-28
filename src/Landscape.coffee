@@ -5,11 +5,11 @@ class Landscape extends Phaser.State
 
   constructor:->
 
+  preload:->
+    window.laggydash.send({ type: 'spawn', player: @game.player_name })
+
   create:->
     @game.stage.backgroundColor = '#000055'
-
-    @player_name = location.search.replace(/[^a-z0-9_]/i, '')
-    console.log(@player_name)
 
     @night = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'night')
     @night.alpha = 0
@@ -54,22 +54,39 @@ class Landscape extends Phaser.State
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
     @mountain0b = @game.add.sprite(2000, 180, 'mountain0')
 
+    @runner = @game.add.sprite(600, 300, 'runner')
+    @runner.scale.setTo(0.25, 0.25)
+    @runner.anchor.setTo(0.5, 1.0)
+
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
 
-    @guy = @game.add.sprite(600, 350, 'guy')
-    @guy.scale.setTo(0.25, 0.25)
-    @guy.anchor.setTo(0.5, 1.0)
+    @mountain1a.alpha = 0.95
+    @mountain1b.alpha = 0.95
 
     @mountain2a = @game.add.sprite(0, 180, 'mountain2')
     @mountain2b = @game.add.sprite(2000, 180, 'mountain2')
-    @mountain2a.alpha = 0.9
-    @mountain2b.alpha = 0.9
 
     @mountain3a = @game.add.sprite(0, 180, 'mountain3')
     @mountain3b = @game.add.sprite(2000, 180, 'mountain3')
     @mountain3a.alpha = 0.4
     @mountain3b.alpha = 0.4
+
+    @avatar = @game.add.sprite(600, 475, "@#{@game.player_name}")
+    @avatar.name = @game.player_name
+    @avatar.width = 60
+    @avatar.height = 60
+    @avatar.anchor.setTo(0.5, 1.0)
+    @avatar.alpha = 0.8
+    @avatar.inputEnabled = true
+    @avatar.useHandCursor = true
+    @avatar.events.onInputDown.add =>
+      console.log(@avatar.name)
+
+    @pen = @game.add.graphics(0, 0)
+    @pen.lineStyle(2, 0xffd900, 0.5)
+    @pen.moveTo(@runner.x, @runner.y)
+    @pen.lineTo(@avatar.x, @avatar.y - 65)
 
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
     @tree0.anchor.setTo(0.5, 1)
@@ -98,18 +115,6 @@ class Landscape extends Phaser.State
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass2 = @game.add.sprite(896, 380, 'grass')
 
-    player = @game.add.sprite(600, 475, 'player')
-    player.scale.setTo(0.8, 0.8)
-    player.anchor.setTo(0.5, 1.0)
-    player.alpha = 0.7
-
-    @position = 0
-
-    @pen = @game.add.graphics(0, 0)
-    @pen.lineStyle(3, 0xffd900, 0.5)
-    @pen.moveTo(600, 410)
-    @pen.lineTo(600, 355)
-
     style =
       font: "10pt Courier"
       fill: "#ffffff"
@@ -117,7 +122,7 @@ class Landscape extends Phaser.State
     @label = @game.add.text(600, 480, "@#{@game.player_name}", style)
     @label.x -= @label.width / 2
 
-    window.laggydash.send("join")
+    @position = 0
 
   update:->
     @position += 1
@@ -148,7 +153,13 @@ class Landscape extends Phaser.State
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
     if @position % 9 == 0
-      @guy.frame = (@guy.frame + 1) % 6
+      @runner.frame = (@runner.frame + 1) % 6
+
+  newAvatar:->
+    console.log("LOADED")
+
+  handle:(event)->
+    console.log(event)
 
   destroy:->
     destroy(@tree0)
@@ -161,7 +172,7 @@ class Landscape extends Phaser.State
     destroy(@cloud)
     destroy(@grass1)
     destroy(@grass2)
-    destroy(@guy)
+    destroy(@runner)
 
   done:=>
     @game.state.start('splash')

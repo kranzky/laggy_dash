@@ -33,8 +33,7 @@ class Main extends Phaser.State
       @game.stage.scale.setShowAll()
       @game.stage.scale.refresh()
 
-    @game.player_name = location.search.replace(/[^a-z0-9_]/i, '')
-    @game.player_name = "barnaby_joyce" if @game.player_name.length < 1 || @game.player_name.length > 15
+    @setPlayerName(location.search)
 
     message = "=== L A G G Y D A S H ===\nis\nLOADING"
     style =
@@ -66,8 +65,7 @@ class Main extends Phaser.State
     @game.load.image('tree1', '<%= asset('tree1.png') %>')
     @game.load.image('tree2', '<%= asset('tree2.png') %>')
     @game.load.image('tree3', '<%= asset('tree3.png') %>')
-    @game.load.image('player', 'http://res.cloudinary.com/kranzky/image/twitter_name/' + @game.player_name + '.jpg')
-    @game.load.spritesheet('guy', '<%= asset('running.png') %>', 90, 128, 6)
+    @game.load.spritesheet('runner', '<%= asset('running.png') %>', 90, 128, 6)
 
   loadRender:->
     @graphics.beginFill(0x00ff44)
@@ -75,11 +73,42 @@ class Main extends Phaser.State
     @graphics.endFill()
 
   render:->
-    @loadRender()
+    @graphics.clear()
+    @loadRender() unless @game.load.hasLoaded
 
   ready:=>
+    @text.alpha = 0.0
+    if @game.player_name?
+      @startGame()
+    else
+      message = "Your Twitter Handle (so we can show you in the game)"
+      options =
+        labels:
+          ok: "Play"
+          cancel: "Surprise Me"
+      alertify.set(options)
+      alertify.prompt message, (event, input) =>
+        @setPlayerName(input) if event
+        @randomPlayerName() unless @game.player_name?
+        @startGame()
+
+  setPlayerName:(name)->
+    return unless name?
+    @game.player_name = name.replace(/[^a-z0-9_]/i, '').toLowerCase()
+    if @game.player_name.length < 1 || @game.player_name.length > 15
+      @game.player_name = null
+
+  randomPlayerName:->
+    famous_people = [
+      "BarackObama", "Eminem", "BillGates", "ParisHilton", "ConanOBrien",
+      "tomhanks", "TheRock", "stephenfry", "MichelleObama"
+    ]
+    name = @game.rnd.pick(famous_people)
+    @setPlayerName(name)
+
+  startGame:=>
+    @connect('laggydash', laggydash.game.rnd.uuid() + ":#{@game.player_name}")
     @game.state.start('splash')
-    @connect('laggydash', laggydash.game.rnd.uuid())
 
   connect:(@channel, @user)->
     @pubnub = PUBNUB.init
@@ -92,36 +121,34 @@ class Main extends Phaser.State
       message: @_message
       presence: @_presence
 
-    @sync()
-
   send:(message)->
     @pubnub.publish
       channel: @channel
-      message: { uuid: @user, time: @worldTime(), data: message }
+      message:
+        uuid: @user
+        data: message
 
-  worldTime:->
-    Date.now() - @latency
-
-  sync:->
-    @pubnub.time(@_time)
-
-  here:->
-    @pubnub.here_now
-      channel: @channel
-      callback: @_here
+  loadAvatar:(name, callback)->
+    if @game.cache.checkImageKey(name)
+      return
+    else
+      @game.load.image("@#{name}", "http://res.cloudinary.com/kranzky/image/twitter_name/#{name}.jpg")
+      @game.load.start()
 
   _presence:(event)=>
-    console.log(event)
+    name = event.uuid.replace(/^.*:/i, '')
+    unless event.uuid == @user
+      switch event.action
+        when "join"
+          alertify.success "@#{name} has joined"
+        when "leave"
+          alertify.error "@#{name} has bailed"
+    return unless event.action = "join"
+    @loadAvatar(name)
 
   _message:(event)=>
     return if event.uuid == @user
     return unless laggydash.game.state.current == 'landscape'
-    @game.state.getCurrentState().movChaser(event.uuid, event.time, event.data)
-
-  _time:(event)=>
-    @latency = Date.now() - event / 10000
-
-  _here:(event)=>
-    console.log(event)
+    @game.state.getCurrentState().handle(event.data)
 
 LaggyDash.Main = Main
