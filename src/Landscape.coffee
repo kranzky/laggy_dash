@@ -49,7 +49,7 @@ class Landscape extends Phaser.State
     @cloud = @game.add.sprite(1000, 70, 'cloud')
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
-    move.to({x: -800}, 300000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999)
+    move.to({x: -800}, 70000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999)
     move.start
 
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
@@ -133,23 +133,23 @@ class Landscape extends Phaser.State
     @grass1.x += 896 * 2 if @grass1.x <= -896
     @grass2.x += 896 * 2 if @grass2.x <= -896
 
-    @mountain0a.x -= 0.3 * SPEED
-    @mountain0b.x -= 0.3 * SPEED
+    @mountain0a.x -= 1.1 * SPEED
+    @mountain0b.x -= 1.1 * SPEED
     @mountain0a.x += 2000 * 2 if @mountain0a.x <= -2000
     @mountain0b.x += 2000 * 2 if @mountain0b.x <= -2000
 
-    @mountain1a.x -= 0.6 * SPEED
-    @mountain1b.x -= 0.6 * SPEED
+    @mountain1a.x -= 1.7 * SPEED
+    @mountain1b.x -= 1.7 * SPEED
     @mountain1a.x += 2000 * 2 if @mountain1a.x <= -2000
     @mountain1b.x += 2000 * 2 if @mountain1b.x <= -2000
 
-    @mountain2a.x -= 0.9 * SPEED
-    @mountain2b.x -= 0.9 * SPEED
+    @mountain2a.x -= 2.3 * SPEED
+    @mountain2b.x -= 2.3 * SPEED
     @mountain2a.x += 2000 * 2 if @mountain2a.x <= -2000
     @mountain2b.x += 2000 * 2 if @mountain2b.x <= -2000
 
-    @mountain3a.x -= 1.2 * SPEED
-    @mountain3b.x -= 1.2 * SPEED
+    @mountain3a.x -= 2.9 * SPEED
+    @mountain3b.x -= 2.9 * SPEED
     @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 

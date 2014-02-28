@@ -150,7 +150,6 @@ class Main extends Phaser.State
     @openWindow("https://twitter.com/intent/tweet?text=#{message}&hashtags=laggydash&url=#{url}&related=#{related}&")
 
   openWindow:(url)->
-    console.log(url)
     windowOptions = "scrollbars=yes,resizable=yes,toolbar=no,location=yes"
     width = 550
     height = 420
