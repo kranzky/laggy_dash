@@ -58,10 +58,18 @@ class Landscape extends Phaser.State
 
     @coin = @game.add.sprite(400, 250, 'coin')
     @coin.anchor.setTo(0.5, 0.5)
+    @coin.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
+    @coin.animations.play('spin')
+
     @bomb = @game.add.sprite(450, 250, 'bomb')
     @bomb.anchor.setTo(0.5, 0.5)
+    @bomb.animations.add('pulse', [0, 1, 2, 3, 4, 5], 10, true)
+    @bomb.animations.play('pulse')
+
     @explosion = @game.add.sprite(500, 250, 'explosion')
     @explosion.anchor.setTo(0.5, 0.5)
+    @explosion.animations.add('bang', [0, 1, 2, 3], 10, true)
+    @explosion.animations.play('bang')
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
@@ -140,22 +148,15 @@ class Landscape extends Phaser.State
     @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
-    @player_group.forEach (player)=>
-      if @position % 7 == 0
-        player.frame = (player.frame + 1) % 6
-
-    if @position % 7 == 0
-      @coin.frame = (@coin.frame + 1) % 6
-      @bomb.frame = (@bomb.frame + 1) % 6
-      @explosion.frame = (@explosion.frame + 1) % 4
-
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
     s = if isPlayer then 'runner' else 'wolf'
 
     runner = @game.add.sprite(x, 300, s)
-    runner.scale.setTo(0.5, 0.5) if isPlayer
     runner.anchor.setTo(0.5, 1.0)
+
+    runner.animations.add('run', [0, 1, 2, 3, 4, 5], 10, true)
+    runner.animations.play('run')
 
     @player_group.add(runner)
 
