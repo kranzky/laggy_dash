@@ -153,6 +153,10 @@ class Landscape extends Phaser.State
     @players = {}
     @addPlayer(laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
 
+    key = @game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
+    key.onDown.add(@jump)
+    @game.input.onTap.add(@jump)
+
   update:->
     @position += 1
 
@@ -188,15 +192,24 @@ class Landscape extends Phaser.State
       wasOnGround = player.onGround
       delta = player.y - y
       player.onGround = delta > 0
+      player.jump = false if delta < -20
       if player.onGround
         player.y = y
-        player.body.velocity.y = -10
-      if wasOnGround && !player.onGround && delta < -10
-        player.animations.stop()
-        player.frame = if player.key == 'runner' then 4 else 2
+        player.body.velocity.y = 0
+        if player.jump
+          player.jump = false
+          player.onGround = false
+          player.y -= 10
+          player.body.velocity.y = -200
+          player.animations.stop()
+          player.frame = if player.key == 'runner' then 4 else 2
       if !wasOnGround && player.onGround
         player.play('run')
 
+  jump:=>
+    @player_group.forEachAlive (player) =>
+      player.jump = true if player.key == 'runner'
+    
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
     s = if isPlayer then 'runner' else 'wolf'
@@ -204,10 +217,11 @@ class Landscape extends Phaser.State
     o = if isPlayer then 0.9 else 1.0
 
     runner = @game.add.sprite(x, 0, s)
-    runner.anchor.setTo(0.5, o)
-    runner.onGround = true
-
     runner.animations.add('run', [0, 1, 2, 3, 4, 5], f, true)
+    runner.anchor.setTo(0.5, o)
+    runner.onGround = false
+    runner.jump = false
+    runner.frame = if isPlayer then 3 else 4
 
     @player_group.add(runner)
 
