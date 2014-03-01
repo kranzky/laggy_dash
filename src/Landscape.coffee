@@ -56,6 +56,13 @@ class Landscape extends Phaser.State
 
     @player_group = @game.add.group()
 
+    @coin = @game.add.sprite(400, 250, 'coin')
+    @coin.anchor.setTo(0.5, 0.5)
+    @bomb = @game.add.sprite(450, 250, 'bomb')
+    @bomb.anchor.setTo(0.5, 0.5)
+    @explosion = @game.add.sprite(500, 250, 'explosion')
+    @explosion.anchor.setTo(0.5, 0.5)
+
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
 
@@ -137,11 +144,17 @@ class Landscape extends Phaser.State
       if @position % 7 == 0
         player.frame = (player.frame + 1) % 6
 
+    if @position % 7 == 0
+      @coin.frame = (@coin.frame + 1) % 6
+      @bomb.frame = (@bomb.frame + 1) % 6
+      @explosion.frame = (@explosion.frame + 1) % 4
+
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
+    s = if isPlayer then 'runner' else 'wolf'
 
-    runner = @game.add.sprite(x, 300, 'runner')
-    runner.scale.setTo(0.25, 0.25)
+    runner = @game.add.sprite(x, 300, s)
+    runner.scale.setTo(0.5, 0.5) if isPlayer
     runner.anchor.setTo(0.5, 1.0)
 
     @player_group.add(runner)
