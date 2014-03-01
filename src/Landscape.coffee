@@ -12,6 +12,7 @@ class Landscape extends Phaser.State
     @game.stage.backgroundColor = '#000055'
 
     @night = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'night')
+    @night.body = null
     @night.alpha = 0
     @night.anchor.setTo(0.5, 0.5)
 
@@ -20,6 +21,7 @@ class Landscape extends Phaser.State
     fade.start
 
     @sky = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'sky')
+    @sky.body = null
     @sky.alpha = 1
     @sky.anchor.setTo(0.5, 0.5)
 
@@ -28,6 +30,7 @@ class Landscape extends Phaser.State
     fade.start
 
     @sun = @game.add.sprite(0, 0, 'sun')
+    @sun.body = null
     @sun.anchor.setTo(0.5, 0.5)
     @sun.scale.setTo(0.3, 0.4)
     @sun.x = @game.world.centerX
@@ -46,33 +49,35 @@ class Landscape extends Phaser.State
     fade.start
 
     @cloud = @game.add.sprite(1000, 70, 'cloud')
+    @cloud.body = null
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
     move.to({x: -800}, 70000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999)
     move.start
 
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
+    @mountain0a.body = null
     @mountain0b = @game.add.sprite(2000, 180, 'mountain0')
+    @mountain0b.body = null
 
     @player_group = @game.add.group()
 
     @coin = @game.add.sprite(400, 250, 'coin')
+    @coin.body = null
     @coin.anchor.setTo(0.5, 0.5)
     @coin.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
     @coin.animations.play('spin')
 
     @bomb = @game.add.sprite(450, 250, 'bomb')
+    @bomb.body = null
     @bomb.anchor.setTo(0.5, 0.5)
     @bomb.animations.add('pulse', [0, 1, 2, 3, 4, 5], 10, true)
     @bomb.animations.play('pulse')
 
-    @explosion = @game.add.sprite(500, 250, 'explosion')
-    @explosion.anchor.setTo(0.5, 0.5)
-    @explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
-    @explosion.animations.play('bang', 4, false, true)
-
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
+    @mountain1a.body = null
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
+    @mountain1b.body = null
 
     @heightmap = []
     y = 122
@@ -91,41 +96,56 @@ class Landscape extends Phaser.State
       @heightmap.push(y)
 
     @mountain2a = @game.add.sprite(0, 180, 'mountain2')
+    @mountain2a.body = null
     @mountain2b = @game.add.sprite(2000, 180, 'mountain2')
+    @mountain2b.body = null
 
     @mountain3a = @game.add.sprite(0, 180, 'mountain3')
-    @mountain3b = @game.add.sprite(2000, 180, 'mountain3')
+    @mountain3a.body = null
     @mountain3a.alpha = 0.4
+    @mountain3b = @game.add.sprite(2000, 180, 'mountain3')
+    @mountain3b.body = null
     @mountain3b.alpha = 0.4
 
     @avatar_group = @game.add.group()
 
+    @explosion = @game.add.sprite(500, 250, 'explosion')
+    @explosion.anchor.setTo(0.5, 0.5)
+    @explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
+    @explosion.animations.play('bang', 4, false, true)
+
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
+    @tree0.body = null
     @tree0.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree0)
     move.to({x: -2000}, 3400 / SPEED, Phaser.Easing.Linear.None, true, 3000 / SPEED, 999)
     move.start
 
     @tree1 = @game.add.sprite(2000, 490, 'tree1')
+    @tree1.body = null
     @tree1.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree1)
     move.to({x: -2000}, 3500 / SPEED, Phaser.Easing.Linear.None, true, 7000 / SPEED, 999)
     move.start
 
     @tree2 = @game.add.sprite(2000, 490, 'tree2')
+    @tree2.body = null
     @tree2.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree2)
     move.to({x: -2000}, 3600 / SPEED, Phaser.Easing.Linear.None, true, 13000 / SPEED, 999)
     move.start
 
     @tree3 = @game.add.sprite(2000, 490, 'tree3')
+    @tree3.body = null
     @tree3.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree3)
     move.to({x: -2000}, 3400 / SPEED, Phaser.Easing.Linear.None, true, 17000 / SPEED, 999)
     move.start
 
     @grass1 = @game.add.sprite(0, 380, 'grass')
+    @grass1.body = null
     @grass2 = @game.add.sprite(896, 380, 'grass')
+    @grass2.body = null
 
     @label_group = @game.add.group()
 
@@ -164,7 +184,18 @@ class Landscape extends Phaser.State
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
     @player_group.forEachAlive (player) =>
       x = (player.x - min) % 2000
-      player.y = @heightmap[x] + @mountain1a.y
+      y = @heightmap[x] + @mountain1a.y
+      wasOnGround = player.onGround
+      delta = player.y - y
+      player.onGround = delta > 0
+      if player.onGround
+        player.y = y
+        player.body.velocity.y = -10
+      if wasOnGround && !player.onGround && delta < -10
+        player.animations.stop()
+        player.frame = if player.key == 'runner' then 4 else 2
+      if !wasOnGround && player.onGround
+        player.play('run')
 
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
@@ -172,15 +203,16 @@ class Landscape extends Phaser.State
     f = if isPlayer then 8 else 12
     o = if isPlayer then 0.9 else 1.0
 
-    runner = @game.add.sprite(x, 300, s)
+    runner = @game.add.sprite(x, 0, s)
     runner.anchor.setTo(0.5, o)
+    runner.onGround = true
 
     runner.animations.add('run', [0, 1, 2, 3, 4, 5], f, true)
-    runner.animations.play('run')
 
     @player_group.add(runner)
 
     avatar = @game.add.sprite(x, 475, "@#{name}")
+    avatar.body = null
     avatar.id = id
     avatar.name = name
     avatar.width = 60

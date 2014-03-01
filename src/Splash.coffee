@@ -7,6 +7,7 @@ class Splash extends Phaser.State
     @game.stage.backgroundColor = '#FFFFFF'
 
     @labs = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'labs')
+    @labs.body = null
     @labs.scale.setTo(0.4, 0.4)
     @labs.anchor.setTo(0.5, 0.5)
     @labs.alpha = 0
