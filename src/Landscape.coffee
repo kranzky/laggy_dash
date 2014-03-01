@@ -157,6 +157,10 @@ class Landscape extends Phaser.State
     key.onDown.add(@jump)
     @game.input.onTap.add(@jump)
 
+    @current = null
+    @timer = @game.time.create()
+    @timer.start()
+
   update:->
     @position += 1
 
@@ -211,6 +215,16 @@ class Landscape extends Phaser.State
         move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, false, @game.rnd.realInRange(0, 10000))
         move.start()
 
+    if @current?
+      player = @players[@current]
+      player.avatar.x = player.runner.x
+      player.label.x = player.runner.x - player.label.width / 2
+
+    if @prev?
+      player = @players[@prev]
+      player.avatar.x = player.runner.x
+      player.label.x = player.runner.x - player.label.width / 2
+
   jump:=>
     @player_group.forEachAlive (player) =>
       if player.key == 'runner'
@@ -241,11 +255,12 @@ class Landscape extends Phaser.State
     avatar.width = 60
     avatar.height = 60
     avatar.anchor.setTo(0.5, 1.0)
-    avatar.alpha = 0.8
+    avatar.alpha = 0.0
     avatar.inputEnabled = true
     avatar.useHandCursor = true
     avatar.events.onInputDown.add =>
-      window.laggydash.showUser(name)
+      if avatar.alpha > 0.5
+        window.laggydash.showUser(name)
 
     @avatar_group.add(avatar)
 
@@ -255,13 +270,45 @@ class Landscape extends Phaser.State
 
     label = @game.add.text(x, 480, "@#{name}", style)
     label.x -= label.width / 2
+    label.alpha = 0.0
 
     @label_group.add(label)
 
-    @players[id] =
-      runner: runner
-      avatar: avatar
-      label: label
+    if isPlayer
+      fade = @game.add.tween(avatar)
+      fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 2000)
+      fade.start
+      fade = @game.add.tween(label)
+      fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 2000)
+      fade.start
+    else
+      @players[id] =
+        runner: runner
+        avatar: avatar
+        label: label
+
+  showPlayer:=>
+    ids = _.keys(@players)
+    if @current? && ids.length > 1
+      @prev = @current
+      ids = _.without(ids, @current)
+      player = @players[@current]
+      fade = @game.add.tween(player.avatar)
+      fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
+      fade.start
+      fade = @game.add.tween(player.label)
+      fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
+      fade.start
+    @current = @game.rnd.pick(ids)
+    player = @players[@current]
+    fade = @game.add.tween(player.avatar)
+    fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 500)
+    fade.start
+    fade = @game.add.tween(player.label)
+    fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 500)
+    fade.start
+    @timer.remove(event) for event in @timer.events
+    @timer.add(8000, @showPlayer)
 
   delPlayer:(id)->
     return unless @players[id]?
@@ -269,6 +316,10 @@ class Landscape extends Phaser.State
     @players[id].avatar.destroy()
     @players[id].label.destroy()
     delete(@players[id])
+    if @current == id
+      @current = null 
+      @showPlayer()
+    @prev = null if @prev == id
 
   avatarLoaded:(key)->
     @avatar_group.forEach (avatar)=>
@@ -281,6 +332,7 @@ class Landscape extends Phaser.State
     switch remote.action
       when 'join'
         @addPlayer(remote.id, remote.name)
+        @showPlayer() if @current == null
       when 'bail'
         @delPlayer(remote.id)
       when 'jump'
