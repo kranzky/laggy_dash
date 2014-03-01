@@ -68,8 +68,8 @@ class Landscape extends Phaser.State
 
     @explosion = @game.add.sprite(500, 250, 'explosion')
     @explosion.anchor.setTo(0.5, 0.5)
-    @explosion.animations.add('bang', [0, 1, 2, 3], 10, true)
-    @explosion.animations.play('bang')
+    @explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
+    @explosion.animations.play('bang', 4, false, true)
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
@@ -89,9 +89,6 @@ class Landscape extends Phaser.State
           solid = @mountain1a.input.checkPixel(x, y)
           break if y > 200
       @heightmap.push(y)
-
-    @mountain1a.alpha = 0.95
-    @mountain1b.alpha = 0.95
 
     @mountain2a = @game.add.sprite(0, 180, 'mountain2')
     @mountain2b = @game.add.sprite(2000, 180, 'mountain2')
@@ -167,15 +164,16 @@ class Landscape extends Phaser.State
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
     @player_group.forEachAlive (player) =>
       x = (player.x - min) % 2000
-      player.y = @heightmap[x] + @mountain1a.y + 3
+      player.y = @heightmap[x] + @mountain1a.y
 
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
     s = if isPlayer then 'runner' else 'wolf'
     f = if isPlayer then 8 else 12
+    o = if isPlayer then 0.9 else 1.0
 
     runner = @game.add.sprite(x, 300, s)
-    runner.anchor.setTo(0.5, 1.0)
+    runner.anchor.setTo(0.5, o)
 
     runner.animations.add('run', [0, 1, 2, 3, 4, 5], f, true)
     runner.animations.play('run')
