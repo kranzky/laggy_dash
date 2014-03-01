@@ -181,6 +181,10 @@ class Main extends Phaser.State
 
   _message:(event)=>
     return if event.uuid == @user
+    uuid = event.uuid.replace(/:.*$/i, '')
+    name = event.uuid.replace(/^.*:/i, '')
+    event.data.id = uuid
+    event.data.name = name
     @_handle(event.data)
 
   _handle:(data)->

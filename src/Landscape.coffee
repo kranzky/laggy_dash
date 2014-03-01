@@ -151,7 +151,7 @@ class Landscape extends Phaser.State
 
     @position = 0
     @players = {}
-    @addPlayer(laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
+    @addPlayer(window.laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
 
     key = @game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
     key.onDown.add(@jump)
@@ -188,7 +188,7 @@ class Landscape extends Phaser.State
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
     @player_group.forEachAlive (player) =>
       x = (player.x - min) % 2000
-      y = @heightmap[x] + @mountain1a.y
+      y = @heightmap[Math.round(x)] + @mountain1a.y
       wasOnGround = player.onGround
       delta = player.y - y
       player.onGround = delta > 0
@@ -205,13 +205,20 @@ class Landscape extends Phaser.State
           player.frame = if player.key == 'runner' then 4 else 2
       if !wasOnGround && player.onGround
         player.play('run')
+      if player.key == 'wolf' && player.x == player.target && player.onGround
+        player.target = @game.rnd.integerInRange(100, 500)
+        move = @game.add.tween(player)
+        move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, false, @game.rnd.realInRange(0, 10000))
+        move.start()
 
   jump:=>
     @player_group.forEachAlive (player) =>
-      player.jump = true if player.key == 'runner'
+      if player.key == 'runner'
+        player.jump = true
+        window.laggydash.send({ action: 'jump' })
     
   addPlayer:(id, name, isPlayer=false)->
-    x = if isPlayer then 600 else 300
+    x = if isPlayer then 600 else @game.rnd.integerInRange(100, 500)
     s = if isPlayer then 'runner' else 'wolf'
     f = if isPlayer then 8 else 12
     o = if isPlayer then 0.9 else 1.0
@@ -222,6 +229,8 @@ class Landscape extends Phaser.State
     runner.onGround = false
     runner.jump = false
     runner.frame = if isPlayer then 3 else 4
+    runner.target = x
+    runner.id = id
 
     @player_group.add(runner)
 
@@ -237,11 +246,6 @@ class Landscape extends Phaser.State
     avatar.useHandCursor = true
     avatar.events.onInputDown.add =>
       window.laggydash.showUser(name)
-
-#   pen = @game.add.graphics(0, 0)
-#   pen.lineStyle(2, 0xffd900, 0.5)
-#   pen.moveTo(runner.x, runner.y)
-#   pen.lineTo(avatar.x, avatar.y - 65)
 
     @avatar_group.add(avatar)
 
@@ -279,6 +283,9 @@ class Landscape extends Phaser.State
         @addPlayer(remote.id, remote.name)
       when 'bail'
         @delPlayer(remote.id)
+      when 'jump'
+        @player_group.forEachAlive (player) =>
+          player.jump = true if player.id == remote.id
 
   delMob:(id, name)->
     console.log("ADD #{name}")
