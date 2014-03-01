@@ -191,6 +191,8 @@ class Landscape extends Phaser.State
 
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
     @player_group.forEachAlive (player) =>
+      player.dot.y = player.avatar.y - player.avatar.height - 5
+      player.dot.height = player.dot.y - player.y - 8
       x = (player.x - min) % 2000
       y = @heightmap[Math.round(x)] + @mountain1a.y
       wasOnGround = player.onGround
@@ -218,11 +220,13 @@ class Landscape extends Phaser.State
     if @current?
       player = @players[@current]
       player.avatar.x = player.runner.x
+      player.runner.dot.x = player.runner.x
       player.label.x = player.runner.x - player.label.width / 2
 
     if @prev?
       player = @players[@prev]
       player.avatar.x = player.runner.x
+      player.runner.dot.x = player.runner.x
       player.label.x = player.runner.x - player.label.width / 2
 
   jump:=>
@@ -264,6 +268,17 @@ class Landscape extends Phaser.State
 
     @avatar_group.add(avatar)
 
+    dot = @game.add.sprite(x, avatar.y, "dot")
+    dot.body = null
+    dot.id = id
+    dot.height = 100
+    dot.anchor.setTo(0.5, 1.0)
+    dot.alpha = 0.0
+    runner.dot = dot
+    runner.avatar = avatar
+
+    @avatar_group.add(dot)
+
     style =
       font: "10pt Courier"
       fill: "#ffffff"
@@ -278,6 +293,9 @@ class Landscape extends Phaser.State
       fade = @game.add.tween(avatar)
       fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 2000)
       fade.start
+      fade = @game.add.tween(dot)
+      fade.to({ alpha: 0.3 }, 1000, Phaser.Easing.Linear.None, true, 2000)
+      fade.start
       fade = @game.add.tween(label)
       fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 2000)
       fade.start
@@ -289,11 +307,18 @@ class Landscape extends Phaser.State
 
   showPlayer:=>
     ids = _.keys(@players)
+    if ids.length == 0
+      @current = null
+      @prev = null
+      return
     if @current? && ids.length > 1
       @prev = @current
       ids = _.without(ids, @current)
       player = @players[@current]
       fade = @game.add.tween(player.avatar)
+      fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
+      fade.start
+      fade = @game.add.tween(player.runner.dot)
       fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
       fade.start
       fade = @game.add.tween(player.label)
@@ -304,6 +329,9 @@ class Landscape extends Phaser.State
     fade = @game.add.tween(player.avatar)
     fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 500)
     fade.start
+    fade = @game.add.tween(player.runner.dot)
+    fade.to({ alpha: 0.3 }, 1000, Phaser.Easing.Linear.None, true, 500)
+    fade.start
     fade = @game.add.tween(player.label)
     fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 500)
     fade.start
@@ -312,6 +340,7 @@ class Landscape extends Phaser.State
 
   delPlayer:(id)->
     return unless @players[id]?
+    @players[id].runner.dot.destroy()
     @players[id].runner.destroy()
     @players[id].avatar.destroy()
     @players[id].label.destroy()
