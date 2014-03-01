@@ -164,14 +164,20 @@ class Landscape extends Phaser.State
     @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
+    min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
+    @player_group.forEachAlive (player) =>
+      x = (player.x - min) % 2000
+      player.y = @heightmap[x] + @mountain1a.y + 3
+
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else 300
     s = if isPlayer then 'runner' else 'wolf'
+    f = if isPlayer then 8 else 12
 
     runner = @game.add.sprite(x, 300, s)
     runner.anchor.setTo(0.5, 1.0)
 
-    runner.animations.add('run', [0, 1, 2, 3, 4, 5], 10, true)
+    runner.animations.add('run', [0, 1, 2, 3, 4, 5], f, true)
     runner.animations.play('run')
 
     @player_group.add(runner)
