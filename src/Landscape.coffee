@@ -74,6 +74,22 @@ class Landscape extends Phaser.State
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
 
+    @heightmap = []
+    y = 122
+    for x in [0..@mountain1a.width]
+      solid = @mountain1a.input.checkPixel(x, y)
+      if solid
+        while solid
+          y -= 1
+          solid = @mountain1a.input.checkPixel(x, y)
+        y += 1
+      else
+        until solid
+          y += 1
+          solid = @mountain1a.input.checkPixel(x, y)
+          break if y > 200
+      @heightmap.push(y)
+
     @mountain1a.alpha = 0.95
     @mountain1b.alpha = 0.95
 
