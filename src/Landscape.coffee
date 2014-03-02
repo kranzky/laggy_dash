@@ -62,17 +62,25 @@ class Landscape extends Phaser.State
 
     @player_group = @game.add.group()
 
-    @coin = @game.add.sprite(400, 250, 'coin')
-    @coin.body = null
-    @coin.anchor.setTo(0.5, 0.5)
-    @coin.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
-    @coin.animations.play('spin')
+    @coins = []
+    for i in [0..20] 
+      coin = @game.add.sprite(0, 0, 'coin')
+      coin.body = null
+      coin.anchor.setTo(0.5, 0.5)
+      coin.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
+      coin.animations.play('spin')
+      coin.kill()
+      @coins.push(coin)
 
-    @bomb = @game.add.sprite(450, 250, 'bomb')
-    @bomb.body = null
-    @bomb.anchor.setTo(0.5, 0.5)
-    @bomb.animations.add('pulse', [0, 1, 2, 3, 4, 5], 10, true)
-    @bomb.animations.play('pulse')
+    @bombs = []
+    for i in [0..5] 
+      bomb = @game.add.sprite(0, 0, 'bomb')
+      bomb.body = null
+      bomb.anchor.setTo(0.5, 0.5)
+      bomb.animations.add('pulse', [0, 1, 2, 3, 4, 5], 10, true)
+      bomb.animations.play('pulse')
+      bomb.kill()
+      @bombs.push(bomb)
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1a.body = null
@@ -109,10 +117,13 @@ class Landscape extends Phaser.State
 
     @avatar_group = @game.add.group()
 
-    @explosion = @game.add.sprite(500, 250, 'explosion')
-    @explosion.anchor.setTo(0.5, 0.5)
-    @explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
-    @explosion.animations.play('bang', 4, false, true)
+    @exposions = []
+    for i in [0..5]
+      explosion = @game.add.sprite(0, 0, 'explosion')
+      explosion.anchor.setTo(0.5, 0.5)
+      explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
+      explosion.animations.play('bang', 4, false, true)
+      explosion.kill()
 
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
     @tree0.body = null
@@ -190,6 +201,36 @@ class Landscape extends Phaser.State
     @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
+
+    if @position > 200 && @position % 50 == 0
+      list = if @position % 100 == 0 and laggydash.game.rnd.frac() < 0.2
+        @bombs
+      else if laggydash.game.rnd.frac() < 0.8
+        @coins
+      else
+        []
+      for obj in list
+        if !obj.alive
+          obj.x = 900
+          x = (obj.x - min) % 2000
+          h = @game.rnd.pick([20, 80])
+          obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
+          obj.alpha = 1
+          move = @game.add.tween(obj)
+          move.to({x: -100}, 10000, Phaser.Easing.Linear.None, false, 0)
+          fade = @game.add.tween(obj)
+          fade.to({ alpha: 0.3 }, 500, Phaser.Easing.Linear.None, false, 3000)
+          obj.revive()
+          move.start()
+          fade.start()
+          break
+
+    for coin in @coins
+      coin.kill() if coin.x < -50
+
+    for bomb in @bombs
+      bomb.kill() if bomb.x < -50
+
     @player_group.forEachAlive (player) =>
       player.dot.y = player.avatar.y - player.avatar.height - 5
       player.dot.height = player.dot.y - player.y - 8
