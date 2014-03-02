@@ -60,27 +60,9 @@ class Landscape extends Phaser.State
     @mountain0b = @game.add.sprite(2000, 180, 'mountain0')
     @mountain0b.body = null
 
+    @collect_group = @game.add.group()
+
     @player_group = @game.add.group()
-
-    @coins = []
-    for i in [0..20] 
-      coin = @game.add.sprite(0, 0, 'coin')
-      coin.body = null
-      coin.anchor.setTo(0.5, 0.5)
-      coin.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
-      coin.animations.play('spin')
-      coin.kill()
-      @coins.push(coin)
-
-    @bombs = []
-    for i in [0..5] 
-      bomb = @game.add.sprite(0, 0, 'bomb')
-      bomb.body = null
-      bomb.anchor.setTo(0.5, 0.5)
-      bomb.animations.add('pulse', [0, 1, 2, 3, 4, 5], 10, true)
-      bomb.animations.play('pulse')
-      bomb.kill()
-      @bombs.push(bomb)
 
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1a.body = null
@@ -203,33 +185,29 @@ class Landscape extends Phaser.State
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
 
     if @position > 200 && @position % 50 == 0
-      list = if @position % 100 == 0 and laggydash.game.rnd.frac() < 0.2
-        @bombs
-      else if laggydash.game.rnd.frac() < 0.8
-        @coins
+      obj = if @position % 100 == 0 and @game.rnd.frac() < 0.2
+        @game.add.sprite(900, 0, 'bomb')
       else
-        []
-      for obj in list
-        if !obj.alive
-          obj.x = 900
-          x = (obj.x - min) % 2000
-          h = @game.rnd.pick([20, 80])
-          obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
-          obj.alpha = 1
-          move = @game.add.tween(obj)
-          move.to({x: -100}, 10000, Phaser.Easing.Linear.None, false, 0)
-          fade = @game.add.tween(obj)
-          fade.to({ alpha: 0.3 }, 500, Phaser.Easing.Linear.None, false, 3000)
-          obj.revive()
-          move.start()
-          fade.start()
-          break
-
-    for coin in @coins
-      coin.kill() if coin.x < -50
-
-    for bomb in @bombs
-      bomb.kill() if bomb.x < -50
+        @game.add.sprite(900, 0, 'coin')
+      obj.body.allowGravity = false
+      obj.anchor.setTo(0.5, 0.5)
+      obj.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
+      obj.animations.play('spin')
+      @collect_group.add(obj)
+      x = (obj.x - min) % 2000
+      h = @game.rnd.pick([20, 80])
+      obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
+      obj.alpha = 1
+      obj.move = @game.add.tween(obj)
+      obj.move.to({x: -100}, 10000, Phaser.Easing.Linear.None, true, 0)
+      obj.move.onComplete.add => @collect(obj)
+      obj.fade = @game.add.tween(obj)
+      obj.fade.to({ alpha: 0.3 }, 500, Phaser.Easing.Linear.None, true, 3000)
+      obj.revive()
+      if @game.rnd.frac() < 0.25
+        obj.jump = @game.add.tween(obj)
+        d = if h == 80 then 60 else -60
+        obj.jump.to({y: obj.y + d}, 300, Phaser.Easing.Linear.None, true, 1400)
 
     @player_group.forEachAlive (player) =>
       player.dot.y = player.avatar.y - player.avatar.height - 5
@@ -270,11 +248,27 @@ class Landscape extends Phaser.State
       player.runner.dot.x = player.runner.x
       player.label.x = player.runner.x - player.label.width / 2
 
+    @player_group.forEachAlive (player) =>
+      if player.key == 'runner'
+        @game.physics.overlap(player, @collect_group, @hit)
+
   jump:=>
     @player_group.forEachAlive (player) =>
       if player.key == 'runner'
         player.jump = true
         window.laggydash.send({ action: 'jump' })
+
+  hit:(runner, obj)=>
+    @collect(obj)
+
+  collect:(obj)->
+    @game.tweens.remove(obj.move)
+    obj.move = null
+    @game.tweens.remove(obj.jump)
+    obj.jump = null
+    @game.tweens.remove(obj.fade)
+    obj.fade = null
+    obj.destroy()
     
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else @game.rnd.integerInRange(100, 500)
