@@ -255,24 +255,31 @@ class Landscape extends Phaser.State
         window.laggydash.send({ action: 'jump' })
 
   gameOver:=>
-    names = ("@#{player.avatar.name}" for id, player of @players)
-    names = _.uniq(names)
-    chasers = switch names.length
-      when 0
-        "nobody at all"
-      when 1
-        names[0]
-      when 2
-        "#{names[0]} and #{names[1]}"
-      else
-        "#{names[0]}, #{names[1]} and others"
-    message = "I ate a bomb in #laggydash after collecting #{@score} coin while being chased by #{chasers}!"
+    message = "You died. Score: #{@score}."
     options =
       labels:
         ok: "Tweet It"
         cancel: "Play Again"
     alertify.set(options)
     alertify.confirm message, (event, input) =>
+      names = ("@#{player.avatar.name}" for id, player of @players)
+      names = _.uniq(names)
+      chasers = switch names.length
+        when 0
+          "nobody at all"
+        when 1
+          names[0]
+        when 2
+          "#{names[0]} and #{names[1]}"
+        else
+          "#{names[0]}, #{names[1]} and others"
+      message = switch @score
+        when 0
+          "I ate a bomb after collecting nothing while being chased by #{chasers}!"
+        when 1
+          "I ate a bomb after collecting one measly coin while being chased by #{chasers}!"
+        else
+          "I ate a bomb after collecting #{@score} coins while being chased by #{chasers}!"
       window.laggydash.tweet(message, names)
       @restart = true
 
