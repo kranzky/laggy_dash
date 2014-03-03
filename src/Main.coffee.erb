@@ -128,6 +128,10 @@ class Main extends Phaser.State
       message: @_message
       presence: @_presence
 
+  disconnect:(@channel)->
+    @pubnub.unsubscribe
+      channel: channel,
+
   send:(message)->
     @pubnub.publish
       channel: @channel

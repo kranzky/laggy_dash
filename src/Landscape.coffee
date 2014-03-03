@@ -148,6 +148,7 @@ class Landscape extends Phaser.State
 
     @label_group = @game.add.group()
 
+    @restart = false
     @score = 0
     @position = 0
     @players = {}
@@ -173,14 +174,18 @@ class Landscape extends Phaser.State
     @player_group.forEachAlive (player) =>
       @updatePlayer(player, min)
 
-    if @current?
-      @updateAvatar(@players[@current])
-    if @prev?
-      @updateAvatar(@players[@prev])
-
-    @updateAvatar(@hero)
+    if @restart
+      window.laggydash.disconnect('laggydash')
+      @game.state.start('splash')
+    else
+      @updateAvatar(@hero)
+      if @current?
+        @updateAvatar(@players[@current])
+      if @prev?
+        @updateAvatar(@players[@prev])
 
   updateAvatar:(player)->
+    return unless player? && player.avatar?
     player.avatar.x = player.runner.x
     player.runner.dot.x = player.runner.x
     player.label.x = player.runner.x - player.label.width / 2
@@ -249,9 +254,20 @@ class Landscape extends Phaser.State
         player.jump = true
         window.laggydash.send({ action: 'jump' })
 
+  gameOver:=>
+    message = "You died."
+    options =
+      labels:
+        ok: "Tweet It"
+        cancel: "Play Again"
+    alertify.set(options)
+    alertify.prompt message, (event, input) =>
+      @restart = true
+
   bang:(player, x, y)=>
     player.runner.body.velocity.y = -150
     player.runner.body.velocity.x = -150
+    player.runner.animations.stop()
     player.runner.frame = 3
     explosion = @game.add.sprite(x, y, 'explosion')
     explosion.body = null
@@ -277,6 +293,9 @@ class Landscape extends Phaser.State
     if obj.key == 'coin'
       @score += 1
     else
+      timer = @game.time.create()
+      timer.add(1000, @gameOver)
+      timer.start()
       @bang(@hero, obj.x, obj.y)
       window.laggydash.send({ action: 'bang' })
     @game.tweens.remove(obj.move)
@@ -442,6 +461,11 @@ class Landscape extends Phaser.State
     destroy(@grass1)
     destroy(@grass2)
     destroy(@runner)
+    destroy(@collect_group)
+    destroy(@player_group)
+    destroy(@avatar_group)
+    destroy(@label_group)
+    destroy(@players)
 
   done:=>
     @game.state.start('splash')
