@@ -154,6 +154,12 @@ class Landscape extends Phaser.State
     @timer = @game.time.create()
     @timer.start()
 
+# render:->
+#   @player_group.forEachAlive (player) =>
+#     @game.debug.renderSpriteBody(player)
+#   @collect_group.forEachAlive (collect) =>
+#     @game.debug.renderSpriteBody(collect)
+
   update:->
     @position += 1
 
@@ -190,6 +196,10 @@ class Landscape extends Phaser.State
       else
         @game.add.sprite(900, 0, 'coin')
       obj.body.allowGravity = false
+      w = if obj.key == 'bomb' then 5 else 15
+      h = w
+      obj.body.setRectangle(w,h,obj.width/2-w/2-1,obj.height/2-h/2)
+      obj.body.x = obj.x
       obj.anchor.setTo(0.5, 0.5)
       obj.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
       obj.animations.play('spin')
@@ -284,6 +294,12 @@ class Landscape extends Phaser.State
     runner.frame = if isPlayer then 3 else 4
     runner.target = x
     runner.id = id
+
+    if isPlayer
+      w = 20
+      h = 40
+      runner.body.setRectangle(w,h,runner.width/2-w/2,runner.height/2-h/2)
+      runner.body.x = runner.x
 
     @player_group.add(runner)
 
