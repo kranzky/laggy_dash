@@ -250,6 +250,8 @@ class Landscape extends Phaser.State
         window.laggydash.send({ action: 'jump' })
 
   bang:(player, x, y)=>
+    player.runner.body.velocity.y = -150
+    player.runner.body.velocity.x = -150
     player.runner.frame = 3
     flash = @game.add.tween(player.runner)
     flash.to({ alpha: 0.0 }, 100, Phaser.Easing.Sinusoidal.InOut, true, 0, 10, true)
@@ -419,6 +421,10 @@ class Landscape extends Phaser.State
       when 'jump'
         @player_group.forEachAlive (player) =>
           player.jump = true if player.id == remote.id
+      when 'bang'
+        @player_group.forEachAlive (player) =>
+          if player.id == remote.id
+            @bang(@players[player.id], player.x, player.y)
 
   delMob:(id, name)->
     console.log("ADD #{name}")
