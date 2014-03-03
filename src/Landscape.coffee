@@ -193,7 +193,7 @@ class Landscape extends Phaser.State
     player.runner.dot.height = player.runner.dot.y - player.runner.y - 8
 
   addCollect:(min)->
-    obj = if @position % 100 == 0 and @game.rnd.frac() < 0.2
+    obj = if @position % 100 == 0 && @game.rnd.frac() < 0.4 || @game.rnd.frac() < 0.1
       @game.add.sprite(900, 0, 'bomb')
     else
       @game.add.sprite(900, 0, 'coin')
