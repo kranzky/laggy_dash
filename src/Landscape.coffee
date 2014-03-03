@@ -113,14 +113,6 @@ class Landscape extends Phaser.State
 
     @avatar_group = @game.add.group()
 
-    @exposions = []
-    for i in [0..5]
-      explosion = @game.add.sprite(0, 0, 'explosion')
-      explosion.anchor.setTo(0.5, 0.5)
-      explosion.animations.add('bang', [0, 1, 2, 3], 4, false)
-      explosion.animations.play('bang', 4, false, true)
-      explosion.kill()
-
     @tree0 = @game.add.sprite(2000, 490, 'tree0')
     @tree0.body = null
     @tree0.anchor.setTo(0.5, 1)
@@ -156,8 +148,10 @@ class Landscape extends Phaser.State
 
     @label_group = @game.add.group()
 
+    @score = 0
     @position = 0
     @players = {}
+    @hero = null
     @addPlayer(window.laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
 
     key = @game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
@@ -174,75 +168,80 @@ class Landscape extends Phaser.State
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
 
     if @position > 200 && @position % 50 == 0
-      obj = if @position % 100 == 0 and @game.rnd.frac() < 0.2
-        @game.add.sprite(900, 0, 'bomb')
-      else
-        @game.add.sprite(900, 0, 'coin')
-      obj.body.allowGravity = false
-      w = if obj.key == 'bomb' then 5 else 15
-      h = w
-      obj.body.setRectangle(w,h,obj.width/2-w/2-1,obj.height/2-h/2)
-      obj.body.x = obj.x
-      obj.anchor.setTo(0.5, 0.5)
-      obj.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
-      obj.animations.play('spin')
-      @collect_group.add(obj)
-      x = (obj.x - min) % 2000
-      h = @game.rnd.pick([20, 80])
-      obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
-      obj.alpha = 1
-      obj.move = @game.add.tween(obj)
-      obj.move.to({x: 350}, 5000, Phaser.Easing.Linear.None, true, 0)
-      obj.move.onComplete.add => @collect(obj)
-      obj.fade = @game.add.tween(obj)
-      obj.fade.to({ alpha: 0.0 }, 2000, Phaser.Easing.Linear.None, true, 2500)
-      obj.revive()
-      if @game.rnd.frac() < 0.25
-        obj.jump = @game.add.tween(obj)
-        d = if h == 80 then 60 else -60
-        obj.jump.to({y: obj.y + d}, 300, Phaser.Easing.Linear.None, true, 1400)
+      @addCollect(min)
 
     @player_group.forEachAlive (player) =>
-      player.dot.y = player.avatar.y - player.avatar.height - 5
-      player.dot.height = player.dot.y - player.y - 8
-      x = (player.x - min) % 2000
-      y = @heightmap[Math.round(x)] + @mountain1a.y
-      wasOnGround = player.onGround
-      delta = player.y - y
-      player.onGround = delta > 0
-      player.jump = false if delta < -20
-      if player.onGround
-        player.y = y
-        player.body.velocity.y = 0
-        if player.jump
-          player.jump = false
-          player.onGround = false
-          player.y -= 10
-          player.body.velocity.y = -200
-          player.animations.stop()
-          player.frame = if player.key == 'runner' then 4 else 2
-      if !wasOnGround && player.onGround
-        player.play('run')
-      if player.key == 'wolf' && player.x == player.target && player.onGround
-        player.target = @game.rnd.integerInRange(100, 500)
-        move = @game.add.tween(player)
-        move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, true, @game.rnd.realInRange(0, 10000))
+      @updatePlayer(player, min)
 
     if @current?
-      player = @players[@current]
-      player.avatar.x = player.runner.x
-      player.runner.dot.x = player.runner.x
-      player.label.x = player.runner.x - player.label.width / 2
-
+      @updateAvatar(@players[@current])
     if @prev?
-      player = @players[@prev]
-      player.avatar.x = player.runner.x
-      player.runner.dot.x = player.runner.x
-      player.label.x = player.runner.x - player.label.width / 2
+      @updateAvatar(@players[@prev])
 
-    @player_group.forEachAlive (player) =>
-      if player.key == 'runner'
-        @game.physics.overlap(player, @collect_group, @hit)
+    @updateAvatar(@hero)
+
+  updateAvatar:(player)->
+    player.avatar.x = player.runner.x
+    player.runner.dot.x = player.runner.x
+    player.label.x = player.runner.x - player.label.width / 2
+    player.runner.dot.y = player.avatar.y - player.avatar.height - 5
+    player.runner.dot.height = player.runner.dot.y - player.runner.y - 8
+
+  addCollect:(min)->
+    obj = if @position % 100 == 0 and @game.rnd.frac() < 0.2
+      @game.add.sprite(900, 0, 'bomb')
+    else
+      @game.add.sprite(900, 0, 'coin')
+    obj.body.allowGravity = false
+    w = if obj.key == 'bomb' then 5 else 15
+    h = w
+    obj.body.setRectangle(w,h,obj.width/2-w/2-1,obj.height/2-h/2)
+    obj.body.x = obj.x
+    obj.anchor.setTo(0.5, 0.5)
+    obj.animations.add('spin', [0, 1, 2, 3, 4, 5], 10, true)
+    obj.animations.play('spin')
+    @collect_group.add(obj)
+    x = (obj.x - min) % 2000
+    h = @game.rnd.pick([20, 80])
+    obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
+    obj.alpha = 1
+    obj.move = @game.add.tween(obj)
+    obj.move.to({x: 350}, 5000, Phaser.Easing.Linear.None, true, 0)
+    obj.move.onComplete.add => obj.kill()
+    obj.fade = @game.add.tween(obj)
+    obj.fade.to({ alpha: 0.0 }, 2000, Phaser.Easing.Linear.None, true, 2500)
+    obj.revive()
+    if @game.rnd.frac() < 0.25
+      obj.jump = @game.add.tween(obj)
+      d = if h == 80 then 60 else -60
+      obj.jump.to({y: obj.y + d}, 300, Phaser.Easing.Linear.None, true, 1400)
+
+  updatePlayer:(player, min)->
+    return if player.bang
+    x = (player.x - min) % 2000
+    y = @heightmap[Math.round(x)] + @mountain1a.y
+    wasOnGround = player.onGround
+    delta = player.y - y
+    player.onGround = delta > 0
+    player.jump = false if delta < -20
+    if player.onGround
+      player.y = y
+      player.body.velocity.y = 0
+      if player.jump
+        player.jump = false
+        player.onGround = false
+        player.y -= 10
+        player.body.velocity.y = -200
+        player.animations.stop()
+        player.frame = if player.key == 'runner' then 4 else 2
+    if !wasOnGround && player.onGround
+      player.play('run')
+    if player.key == 'wolf' && player.x == player.target && player.onGround
+      player.target = @game.rnd.integerInRange(100, 500)
+      move = @game.add.tween(player)
+      move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, true, @game.rnd.realInRange(0, 10000))
+    if player.key == 'runner'
+      @game.physics.overlap(player, @collect_group, @hit)
 
   jump:=>
     @player_group.forEachAlive (player) =>
@@ -250,17 +249,41 @@ class Landscape extends Phaser.State
         player.jump = true
         window.laggydash.send({ action: 'jump' })
 
+  bang:(player, x, y)=>
+    player.runner.frame = 3
+    flash = @game.add.tween(player.runner)
+    flash.to({ alpha: 0.0 }, 100, Phaser.Easing.Sinusoidal.InOut, true, 0, 10, true)
+    fade = @game.add.tween(player.avatar)
+    fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true, 0)
+    fade = @game.add.tween(player.runner.dot)
+    fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true, 0)
+    fade = @game.add.tween(player.label)
+    fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true, 0)
+    player.runner.bang = true
+    explosion = @game.add.sprite(x, y, 'explosion')
+    explosion.body = null
+    explosion.anchor.setTo(0.5, 0.5)
+    explosion.animations.add('bang', [0, 1, 2, 3], 6, false)
+    explosion.animations.play('bang', 6, false, true)
+    move = @game.add.tween(explosion)
+    move.to({x: explosion.x - 550}, 5000, Phaser.Easing.Linear.None, true, 0)
+
   hit:(runner, obj)=>
     @collect(obj)
 
   collect:(obj)->
+    if obj.key == 'coin'
+      @score += 1
+    else
+      @bang(@hero, obj.x, obj.y)
+      window.laggydash.send({ action: 'bang' })
     @game.tweens.remove(obj.move)
     obj.move = null
     @game.tweens.remove(obj.jump)
     obj.jump = null
     @game.tweens.remove(obj.fade)
     obj.fade = null
-    obj.destroy()
+    obj.kill()
     
   addPlayer:(id, name, isPlayer=false)->
     x = if isPlayer then 600 else @game.rnd.integerInRange(100, 500)
@@ -273,6 +296,7 @@ class Landscape extends Phaser.State
     runner.anchor.setTo(0.5, o)
     runner.onGround = false
     runner.jump = false
+    runner.bang = false
     runner.frame = if isPlayer then 3 else 4
     runner.target = x
     runner.id = id
@@ -329,6 +353,10 @@ class Landscape extends Phaser.State
       fade.to({ alpha: 0.3 }, 1000, Phaser.Easing.Linear.None, true, 2000)
       fade = @game.add.tween(label)
       fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 2000)
+      @hero =
+        runner: runner
+        avatar: avatar
+        label: label
     else
       @players[id] =
         runner: runner
@@ -364,10 +392,10 @@ class Landscape extends Phaser.State
 
   delPlayer:(id)->
     return unless @players[id]?
-    @players[id].runner.dot.destroy()
-    @players[id].runner.destroy()
-    @players[id].avatar.destroy()
-    @players[id].label.destroy()
+    @players[id].runner.dot.kill()
+    @players[id].runner.kill()
+    @players[id].avatar.kill()
+    @players[id].label.kill()
     delete(@players[id])
     if @current == id
       @current = null 
