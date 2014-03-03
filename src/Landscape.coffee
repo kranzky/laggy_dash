@@ -253,6 +253,13 @@ class Landscape extends Phaser.State
     player.runner.body.velocity.y = -150
     player.runner.body.velocity.x = -150
     player.runner.frame = 3
+    explosion = @game.add.sprite(x, y, 'explosion')
+    explosion.body = null
+    explosion.anchor.setTo(0.5, 0.5)
+    explosion.animations.add('bang', [0, 1, 2, 3], 6, false)
+    explosion.animations.play('bang', 6, false, true)
+    move = @game.add.tween(explosion)
+    move.to({x: explosion.x - 550}, 5000, Phaser.Easing.Linear.None, true, 0)
     flash = @game.add.tween(player.runner)
     flash.to({ alpha: 0.0 }, 100, Phaser.Easing.Sinusoidal.InOut, true, 0, 10, true)
     fade = @game.add.tween(player.avatar)
@@ -262,13 +269,6 @@ class Landscape extends Phaser.State
     fade = @game.add.tween(player.label)
     fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true, 0)
     player.runner.bang = true
-    explosion = @game.add.sprite(x, y, 'explosion')
-    explosion.body = null
-    explosion.anchor.setTo(0.5, 0.5)
-    explosion.animations.add('bang', [0, 1, 2, 3], 6, false)
-    explosion.animations.play('bang', 6, false, true)
-    move = @game.add.tween(explosion)
-    move.to({x: explosion.x - 550}, 5000, Phaser.Easing.Linear.None, true, 0)
 
   hit:(runner, obj)=>
     @collect(obj)
@@ -398,6 +398,9 @@ class Landscape extends Phaser.State
     @players[id].runner.kill()
     @players[id].avatar.kill()
     @players[id].label.kill()
+    @remPlayer(id)
+
+  remPlayer:(id)->
     delete(@players[id])
     if @current == id
       @current = null 
@@ -425,9 +428,7 @@ class Landscape extends Phaser.State
         @player_group.forEachAlive (player) =>
           if player.id == remote.id
             @bang(@players[player.id], player.x, player.y)
-
-  delMob:(id, name)->
-    console.log("ADD #{name}")
+            @remPlayer(player.id)
 
   destroy:->
     destroy(@tree0)

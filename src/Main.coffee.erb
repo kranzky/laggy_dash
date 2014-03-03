@@ -173,10 +173,10 @@ class Main extends Phaser.State
       switch event.action
         when "join"
           @_handle({ id: uuid, action: 'join', name: name })
-          alertify.success "@#{name} has joined"
+#         alertify.success "@#{name} has joined"
         when "leave"
           @_handle({ id: uuid, action: 'bail', name: name })
-          alertify.error "@#{name} has bailed"
+#         alertify.error "@#{name} has bailed"
     return unless event.action = "join"
     @loadAvatar(name)
 
