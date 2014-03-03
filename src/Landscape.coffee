@@ -18,7 +18,6 @@ class Landscape extends Phaser.State
 
     fade = @game.add.tween(@night)
     fade.to({ alpha: 1 }, 300000 / SPEED, Phaser.Easing.Linear.None, true, 150000 / SPEED, 999, true)
-    fade.start
 
     @sky = @game.add.sprite(@game.world.centerX, @game.world.centerY, 'sky')
     @sky.body = null
@@ -27,7 +26,6 @@ class Landscape extends Phaser.State
 
     fade = @game.add.tween(@sky)
     fade.to({ alpha: 0 }, 450000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999, true)
-    fade.start
 
     @sun = @game.add.sprite(0, 0, 'sun')
     @sun.body = null
@@ -38,22 +36,18 @@ class Landscape extends Phaser.State
 
     grow = @game.add.tween(@sun.scale)
     grow.to({ x: 1.5, y: 1.5 }, 450000 / SPEED, Phaser.Easing.Cubic.InOut, true, 0, 999, true)
-    grow.start
 
     set = @game.add.tween(@sun)
     set.to({ y: 675 }, 450000 / SPEED, Phaser.Easing.Sinusoidal.InOut, true, 0, 999, true)
-    set.start
 
     fade = @game.add.tween(@sun)
     fade.to({ alpha: 0 }, 450000 / SPEED, Phaser.Easing.Linear.None, true, 0, true, true)
-    fade.start
 
     @cloud = @game.add.sprite(1000, 70, 'cloud')
     @cloud.body = null
     @cloud.alpha = 0.4
     move = @game.add.tween(@cloud)
     move.to({x: -800}, 70000 / SPEED, Phaser.Easing.Linear.None, true, 0, 999)
-    move.start
 
     @mountain0a = @game.add.sprite(0, 180, 'mountain0')
     @mountain0a.body = null
@@ -62,12 +56,12 @@ class Landscape extends Phaser.State
 
     @collect_group = @game.add.group()
 
-    @player_group = @game.add.group()
-
     @mountain1a = @game.add.sprite(0, 180, 'mountain1')
     @mountain1a.body = null
     @mountain1b = @game.add.sprite(2000, 180, 'mountain1')
     @mountain1b.body = null
+
+    @player_group = @game.add.group()
 
     @heightmap = []
     y = 122
@@ -97,6 +91,26 @@ class Landscape extends Phaser.State
     @mountain3b.body = null
     @mountain3b.alpha = 0.4
 
+    move = @game.add.tween(@mountain0a)
+    move.to({x: -2000}, 31000, Phaser.Easing.Linear.None, true, 0, 999)
+    move = @game.add.tween(@mountain0b)
+    move.to({x: 0}, 31000, Phaser.Easing.Linear.None, true, 0, 999)
+
+    move = @game.add.tween(@mountain1a)
+    move.to({x: -2000}, 18000, Phaser.Easing.Linear.None, true, 0, 999)
+    move = @game.add.tween(@mountain1b)
+    move.to({x: 0}, 18000, Phaser.Easing.Linear.None, true, 0, 999)
+
+    move = @game.add.tween(@mountain2a)
+    move.to({x: -2000}, 13000, Phaser.Easing.Linear.None, true, 0, 999)
+    move = @game.add.tween(@mountain2b)
+    move.to({x: 0}, 13000, Phaser.Easing.Linear.None, true, 0, 999)
+
+    move = @game.add.tween(@mountain3a)
+    move.to({x: -2000}, 7000, Phaser.Easing.Linear.None, true, 0, 999)
+    move = @game.add.tween(@mountain3b)
+    move.to({x: 0}, 7000, Phaser.Easing.Linear.None, true, 0, 999)
+
     @avatar_group = @game.add.group()
 
     @exposions = []
@@ -112,33 +126,33 @@ class Landscape extends Phaser.State
     @tree0.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree0)
     move.to({x: -2000}, 3400 / SPEED, Phaser.Easing.Linear.None, true, 3000 / SPEED, 999)
-    move.start
 
     @tree1 = @game.add.sprite(2000, 490, 'tree1')
     @tree1.body = null
     @tree1.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree1)
     move.to({x: -2000}, 3500 / SPEED, Phaser.Easing.Linear.None, true, 7000 / SPEED, 999)
-    move.start
 
     @tree2 = @game.add.sprite(2000, 490, 'tree2')
     @tree2.body = null
     @tree2.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree2)
     move.to({x: -2000}, 3600 / SPEED, Phaser.Easing.Linear.None, true, 13000 / SPEED, 999)
-    move.start
 
     @tree3 = @game.add.sprite(2000, 490, 'tree3')
     @tree3.body = null
     @tree3.anchor.setTo(0.5, 1)
     move = @game.add.tween(@tree3)
     move.to({x: -2000}, 3400 / SPEED, Phaser.Easing.Linear.None, true, 17000 / SPEED, 999)
-    move.start
 
     @grass1 = @game.add.sprite(0, 380, 'grass')
     @grass1.body = null
     @grass2 = @game.add.sprite(896, 380, 'grass')
     @grass2.body = null
+    move = @game.add.tween(@grass1)
+    move.to({x: -896}, 1000, Phaser.Easing.Linear.None, true, 0, 999)
+    move = @game.add.tween(@grass2)
+    move.to({x: 0}, 1000, Phaser.Easing.Linear.None, true, 0, 999)
 
     @label_group = @game.add.group()
 
@@ -154,39 +168,8 @@ class Landscape extends Phaser.State
     @timer = @game.time.create()
     @timer.start()
 
-# render:->
-#   @player_group.forEachAlive (player) =>
-#     @game.debug.renderSpriteBody(player)
-#   @collect_group.forEachAlive (collect) =>
-#     @game.debug.renderSpriteBody(collect)
-
   update:->
     @position += 1
-
-    @grass1.x -= 20 * SPEED
-    @grass2.x -= 20 * SPEED
-    @grass1.x += 896 * 2 if @grass1.x <= -896
-    @grass2.x += 896 * 2 if @grass2.x <= -896
-
-    @mountain0a.x -= 1.1 * SPEED
-    @mountain0b.x -= 1.1 * SPEED
-    @mountain0a.x += 2000 * 2 if @mountain0a.x <= -2000
-    @mountain0b.x += 2000 * 2 if @mountain0b.x <= -2000
-
-    @mountain1a.x -= 1.7 * SPEED
-    @mountain1b.x -= 1.7 * SPEED
-    @mountain1a.x += 2000 * 2 if @mountain1a.x <= -2000
-    @mountain1b.x += 2000 * 2 if @mountain1b.x <= -2000
-
-    @mountain2a.x -= 2.3 * SPEED
-    @mountain2b.x -= 2.3 * SPEED
-    @mountain2a.x += 2000 * 2 if @mountain2a.x <= -2000
-    @mountain2b.x += 2000 * 2 if @mountain2b.x <= -2000
-
-    @mountain3a.x -= 2.9 * SPEED
-    @mountain3b.x -= 2.9 * SPEED
-    @mountain3a.x += 2000 * 2 if @mountain3a.x <= -2000
-    @mountain3b.x += 2000 * 2 if @mountain3b.x <= -2000
 
     min = Math.round(Math.min(@mountain1a.x, @mountain1b.x))
 
@@ -209,10 +192,10 @@ class Landscape extends Phaser.State
       obj.y = @heightmap[Math.round(x)] + @mountain1a.y - h
       obj.alpha = 1
       obj.move = @game.add.tween(obj)
-      obj.move.to({x: -100}, 10000, Phaser.Easing.Linear.None, true, 0)
+      obj.move.to({x: 350}, 5000, Phaser.Easing.Linear.None, true, 0)
       obj.move.onComplete.add => @collect(obj)
       obj.fade = @game.add.tween(obj)
-      obj.fade.to({ alpha: 0.3 }, 500, Phaser.Easing.Linear.None, true, 3000)
+      obj.fade.to({ alpha: 0.0 }, 2000, Phaser.Easing.Linear.None, true, 2500)
       obj.revive()
       if @game.rnd.frac() < 0.25
         obj.jump = @game.add.tween(obj)
@@ -243,8 +226,7 @@ class Landscape extends Phaser.State
       if player.key == 'wolf' && player.x == player.target && player.onGround
         player.target = @game.rnd.integerInRange(100, 500)
         move = @game.add.tween(player)
-        move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, false, @game.rnd.realInRange(0, 10000))
-        move.start()
+        move.to({x: player.target}, @game.rnd.realInRange(3000, 8000), Phaser.Easing.Sinusoidal.InOut, true, @game.rnd.realInRange(0, 10000))
 
     if @current?
       player = @players[@current]
@@ -343,13 +325,10 @@ class Landscape extends Phaser.State
     if isPlayer
       fade = @game.add.tween(avatar)
       fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 2000)
-      fade.start
       fade = @game.add.tween(dot)
       fade.to({ alpha: 0.3 }, 1000, Phaser.Easing.Linear.None, true, 2000)
-      fade.start
       fade = @game.add.tween(label)
       fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 2000)
-      fade.start
     else
       @players[id] =
         runner: runner
@@ -368,24 +347,18 @@ class Landscape extends Phaser.State
       player = @players[@current]
       fade = @game.add.tween(player.avatar)
       fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
-      fade.start
       fade = @game.add.tween(player.runner.dot)
       fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
-      fade.start
       fade = @game.add.tween(player.label)
       fade.to({ alpha: 0.0 }, 1000, Phaser.Easing.Linear.None, true)
-      fade.start
     @current = @game.rnd.pick(ids)
     player = @players[@current]
     fade = @game.add.tween(player.avatar)
     fade.to({ alpha: 0.8 }, 1000, Phaser.Easing.Linear.None, true, 500)
-    fade.start
     fade = @game.add.tween(player.runner.dot)
     fade.to({ alpha: 0.3 }, 1000, Phaser.Easing.Linear.None, true, 500)
-    fade.start
     fade = @game.add.tween(player.label)
     fade.to({ alpha: 1.0 }, 1000, Phaser.Easing.Linear.None, true, 500)
-    fade.start
     @timer.remove(event) for event in @timer.events
     @timer.add(8000, @showPlayer)
 
