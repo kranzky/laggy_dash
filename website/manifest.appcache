@@ -1,0 +1,33 @@
+CACHE MANIFEST
+
+NETWORK:
+*
+
+CACHE:
+index.html
+stylesheets/laggy-dash.css
+javascripts/laggy-dash.js
+images/bomb.png
+images/cloud.png
+images/coin.png
+images/dot.png
+images/explosion.png
+images/grass.png
+images/labs.png
+images/mountain0.png
+images/mountain1.png
+images/mountain2.png
+images/mountain3.png
+images/night_sky.png
+images/night_stars.png
+images/running.png
+images/sky.jpg
+images/sun.png
+images/tree0.png
+images/tree1.png
+images/tree2.png
+images/tree3.png
+images/wolf.png
+
+FALLBACK:
+/ offline.html

@@ -9,7 +9,6 @@ configure :development do
 end
 
 configure :build do
-  activate :asset_hash, ignore: [/js/]
   activate :minify_css
   activate :minify_javascript
   activate :relative_assets
@@ -18,10 +17,4 @@ end
 
 ready do
   sprockets.append_path '../src'
-end
-
-helpers do
-  def asset(path)
-    image_path(path).gsub(/^..\//, '')
-  end
 end
