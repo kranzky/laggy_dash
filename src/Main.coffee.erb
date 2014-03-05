@@ -115,6 +115,7 @@ class Main extends Phaser.State
     @setPlayerName(name)
 
   startGame:=>
+    @connect('laggydash', laggydash.game.rnd.uuid() + ":#{@game.player_name}")
     @game.state.start('splash')
 
   connect:(@channel, @user)->

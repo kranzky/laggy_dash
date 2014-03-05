@@ -6,7 +6,7 @@ class Landscape extends Phaser.State
   constructor:->
 
   preload:->
-    window.laggydash.connect('laggydash', laggydash.game.rnd.uuid() + ":#{@game.player_name}")
+    window.laggydash.send({ action: 'spawn' })
 
   create:->
     @game.stage.backgroundColor = '#000055'
@@ -175,7 +175,6 @@ class Landscape extends Phaser.State
       @updatePlayer(player, min)
 
     if @restart
-      window.laggydash.disconnect('laggydash')
       @game.state.start('splash')
     else
       @updateAvatar(@hero)
@@ -431,21 +430,6 @@ class Landscape extends Phaser.State
     @timer.remove(event) for event in @timer.events
     @timer.add(8000, @showPlayer)
 
-  delPlayer:(id)->
-    return unless @players[id]?
-    @players[id].runner.dot.kill()
-    @players[id].runner.kill()
-    @players[id].avatar.kill()
-    @players[id].label.kill()
-    @remPlayer(id)
-
-  remPlayer:(id)->
-    delete(@players[id])
-    if @current == id
-      @current = null 
-      @showPlayer()
-    @prev = null if @prev == id
-
   avatarLoaded:(key)->
     @avatar_group.forEach (avatar)=>
       if avatar.key == "__missing" && key == "@#{avatar.name}"
@@ -455,19 +439,47 @@ class Landscape extends Phaser.State
 
   handle:(remote)->
     switch remote.action
-      when 'join'
-        @addPlayer(remote.id, remote.name)
-        @showPlayer() if @current == null
+      when 'spawn'
+        @spawn(remote.id, remote.name)
       when 'bail'
         @delPlayer(remote.id)
       when 'jump'
-        @player_group.forEachAlive (player) =>
-          player.jump = true if player.id == remote.id
+        unless @players[remote.id]?
+          @spawn(remote.id, remote.name)
+        @jmpPlayer(remote.id)
       when 'bang'
-        @player_group.forEachAlive (player) =>
-          if player.id == remote.id
-            @bang(@players[player.id], player.x, player.y)
-            @remPlayer(player.id)
+        @diePlayer(remote.id)
+
+  spawn:(id, name)->
+    @addPlayer(id, name)
+    @showPlayer() if @current == null
+
+  delPlayer:(id)->
+    return unless @players[id]?
+    @players[id].runner.dot.kill()
+    @players[id].runner.kill()
+    @players[id].avatar.kill()
+    @players[id].label.kill()
+    @remPlayer(id)
+
+  diePlayer:(id)->
+    return unless @players[id]?
+    player = @players[id].runner
+    @bang(@players[id], player.x, player.y)
+    @remPlayer(id)
+
+  remPlayer:(id)->
+    return unless @players[id]?
+    delete(@players[id])
+    if @current == id
+      @current = null 
+      @showPlayer()
+    @prev = null if @prev == id
+
+  jmpPlayer:(id)->
+    return unless @players[id]?
+    player = @players[id].runner
+    player.jump = true
 
   destroy:->
     destroy(@tree0)
