@@ -440,7 +440,8 @@ class Landscape extends Phaser.State
   handle:(remote)->
     switch remote.action
       when 'spawn'
-        @spawn(remote.id, remote.name)
+        unless @players[remote.id]?
+          @spawn(remote.id, remote.name)
       when 'bail'
         @delPlayer(remote.id)
       when 'jump'
