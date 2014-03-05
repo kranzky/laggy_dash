@@ -5,6 +5,8 @@ NETWORK:
 
 CACHE:
 index.html
+offline.html
+404.html
 stylesheets/laggy-dash.css
 javascripts/laggy-dash.js
 images/bomb.png
