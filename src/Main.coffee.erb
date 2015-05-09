@@ -157,7 +157,7 @@ class Main extends Phaser.State
     @openWindow("https://twitter.com/intent/user?screen_name=#{name}")
 
   tweet:(message, follow)->
-    url = encodeURI("http://laggydash.com/")
+    url = encodeURI("http://laggydash.kranzky.com/")
     message = encodeURI(message)
     related = encodeURI(follow.toString())
     @openWindow("https://twitter.com/intent/tweet?text=#{message}&hashtags=laggydash&url=#{url}&related=#{related}&")
