@@ -120,8 +120,8 @@ class Main extends Phaser.State
 
   connect:(@channel, @user)->
     @pubnub = PUBNUB.init
-      publish_key: "pub-c-e5d7da60-f65b-4173-b353-2b06890cfe5b"
-      subscribe_key: "sub-c-4cf670be-96d5-11e3-b9e1-02ee2ddab7fe"
+      publish_key: "pub-c-cd3e1569-427d-42bc-82ea-da16c88a1bb3"
+      subscribe_key: "sub-c-1b44978a-f629-11e4-8fd2-02ee2ddab7fe"
       uuid: @user
 
     @pubnub.subscribe
@@ -146,6 +146,7 @@ class Main extends Phaser.State
       return
     else
       @game.load.image(key, "http://res.cloudinary.com/kranzky/image/twitter_name/#{name}.jpg")
+      #@game.load.image(key, "http://avatars.io/twitter/#{name}")
       @game.load.start() unless @game.load.isLoading
 
   onAvatarLoaded:(key)->
@@ -191,6 +192,7 @@ class Main extends Phaser.State
     name = event.uuid.replace(/^.*:/i, '')
     event.data.id = uuid
     event.data.name = name
+    @loadAvatar(name)
     @_handle(event.data)
 
   _handle:(data)->

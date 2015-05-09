@@ -154,6 +154,7 @@ class Landscape extends Phaser.State
     @players = {}
     @hero = null
     @addPlayer(window.laggydash.user.replace(/:.*$/, ''), @game.player_name, true)
+    window.laggydash.loadAvatar(@game.player_name)
 
     key = @game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
     key.onDown.add(@jump)
